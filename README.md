@@ -1,1 +1,0 @@
-# SDU-As-Sunniyyah-Pasirian-Lumajang
