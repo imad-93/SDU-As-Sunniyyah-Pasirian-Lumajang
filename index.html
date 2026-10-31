@@ -38,6 +38,7 @@
   .demo-box strong{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--primary)}
   .demo-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;color:#33513f}
   .demo-row code{background:#fff;padding:1px 7px;border-radius:5px;font-size:11.5px;color:var(--primary);font-weight:600}
+  .demo-note{margin-top:12px;font-size:11px;color:var(--muted);text-align:center}
 
   /* ============ APP SHELL ============ */
   .layout{display:flex;min-height:100vh}
@@ -275,6 +276,13 @@
    ========================================================= */
 
 const STORAGE_KEY = 'assunniyyah_db_v2';
+const SESSION_KEY = 'assunniyyah_session_v1';
+const DEMO_CREDENTIALS = [
+  { username: 'admin', password: 'admin123', role: 'admin', label: 'Admin / Lembaga' },
+  { username: 'guru', password: 'guru123', role: 'guru', label: 'Guru' },
+  { username: 'wali', password: 'wali123', role: 'wali', label: 'Wali Murid' },
+  { username: 'kantin', password: 'kantin123', role: 'kantin', label: 'Petugas Kantin' },
+];
 
 /* ---------- HELPERS ---------- */
 const $  = s => document.querySelector(s);
@@ -282,7 +290,7 @@ const $$ = s => [...document.querySelectorAll(s)];
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 const pad = n => String(n).padStart(2, '0');
 const fmtDateLocal = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-const today = () => fmtDateLocal(new Date());           // tanggal LOKAL (bukan UTC)
+const today = () => fmtDateLocal(new Date());
 const dayStr = off => { const d = new Date(); d.setDate(d.getDate() + off); return fmtDateLocal(d); };
 const nowHMS = () => { const d = new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; };
 const fmtRp = n => 'Rp ' + Number(n).toLocaleString('id-ID');
@@ -293,6 +301,31 @@ const fmtTgl = s => {
 };
 const esc = t => String(t ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const safeJSONParse = (value, fallback) => {
+  try { return value ? JSON.parse(value) : fallback; }
+  catch { return fallback; }
+};
+const persistSession = user => {
+  if (!user) {
+    sessionStorage.removeItem(SESSION_KEY);
+    return;
+  }
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+    u: user.u,
+    role: user.role,
+    ref: user.ref,
+    nama: user.nama,
+  }));
+};
+const getDefaultMapelForRole = (role, ref) => {
+  if (role === 'guru' && ref) {
+    const guru = getGuru(ref);
+    if (guru?.mapel && /kelas/i.test(guru.mapel)) return 'Matematika';
+    if (guru?.mapel && /pai/i.test(guru.mapel)) return 'Pendidikan Agama Islam';
+    if (guru?.mapel && /tahfidz/i.test(guru.mapel)) return "Al-Qur'an (Tahfidz)";
+  }
+  return MAPEL[0];
+};
 
 /* ---------- KONSTANTA AKADEMIK ---------- */
 const JAM = [
@@ -304,13 +337,17 @@ const JAM = [
 const MAPEL = ["Al-Qur'an (Tahfidz)", 'Pendidikan Agama Islam', 'Bahasa Indonesia', 'Matematika',
   'IPAS', 'Bahasa Arab', 'Bahasa Inggris', 'PJOK', 'Seni & Prakarya', 'Pendidikan Pancasila'];
 function detectJam() {
-  const d = new Date(); const m = d.getHours() * 60 + d.getMinutes(); let r = 1;
+  const d = new Date();
+  const m = d.getHours() * 60 + d.getMinutes();
+  if (m >= 9 * 60 + 20 && m < 9 * 60 + 40) return 4;
+  let r = 1;
   JAM.forEach(j => { const [h, mm] = j.s.split(':').map(Number); if (m >= h * 60 + mm) r = j.n; });
   return r;
 }
 
 /* ---------- FORMAT QR ---------- */
-const SISWA_PREFIX = 'ASN-S:', BARANG_PREFIX = 'ASN-B:';
+const SISWA_PREFIX = 'ASN-S:';
+const BARANG_PREFIX = 'ASN-B:';
 const qrSiswaText = s => SISWA_PREFIX + s.nis;
 const qrBarangText = p => BARANG_PREFIX + p.kode;
 const kindOf = c => /^ASN-S:/i.test(c) ? 'siswa' : /^ASN-B:/i.test(c) ? 'barang' : null;
@@ -375,7 +412,6 @@ function seed() {
     }
   });
 
-  // metode: 'Top Up' | 'Saldo' | 'Cash'
   const kantin = [
     { id: uid(), siswaId:'s1', tanggal: t, waktu:'06:50:00', keterangan:'Top Up Saldo', nominal: 50000, metode:'Top Up' },
     { id: uid(), siswaId:'s1', tanggal: t, waktu:'09:40:00', keterangan:'Nasi Ayam + Air Mineral', nominal: -12000, metode:'Saldo' },
@@ -396,7 +432,6 @@ function seed() {
     { id: uid(), siswaId:'s2', mapel:'Matematika', materi:'Pengenalan Angka 1–50', nilai: 80, catatan:'Perlu pendampingan di rumah.', tanggal: t },
   ];
 
-  // Katalog barang kantin (tiap barang punya QR Code)
   const produk = [
     { id:'p1',  kode:'BRG-001', nama:'Nasi Ayam',     harga:10000 },
     { id:'p2',  kode:'BRG-002', nama:'Mie Ayam',      harga:8000  },
@@ -410,7 +445,6 @@ function seed() {
     { id:'p10', kode:'BRG-010', nama:'Gorengan',      harga:1000  },
   ];
 
-  // Absensi per jam pelajaran (hasil scan QR siswa oleh guru)
   const absensiMapel = [];
   const add = (tgl, jam, mapel, guruId, kelas, ids, base) => ids.forEach((id, i) =>
     absensiMapel.push({ id: uid(), tanggal: tgl, jam, mapel, guruId, kelas, siswaId: id,
@@ -420,14 +454,35 @@ function seed() {
   add(y, 1, 'Pendidikan Agama Islam','g4', '1A', ['s1','s2','s3','s4'], '07:01');
   add(y, 2, "Al-Qur'an (Tahfidz)",   'g5', '1A', ['s1','s2','s4'],      '07:36');
 
-  const settings = { limitHarian: 20000 };
-
+  const settings = { limitHarian: 20000, version: 2 };
   return { siswa, guru, users, absensiSiswa, absensiGuru, pembayaran, kantin, capaian, produk, absensiMapel, settings };
 }
 
+function normalizeDb(data) {
+  const fallback = seed();
+  if (!data || typeof data !== 'object') return fallback;
+  const db = {
+    ...fallback,
+    ...data,
+    siswa: Array.isArray(data.siswa) ? data.siswa : fallback.siswa,
+    guru: Array.isArray(data.guru) ? data.guru : fallback.guru,
+    users: Array.isArray(data.users) ? data.users : fallback.users,
+    absensiSiswa: Array.isArray(data.absensiSiswa) ? data.absensiSiswa : fallback.absensiSiswa,
+    absensiGuru: Array.isArray(data.absensiGuru) ? data.absensiGuru : fallback.absensiGuru,
+    pembayaran: Array.isArray(data.pembayaran) ? data.pembayaran : fallback.pembayaran,
+    kantin: Array.isArray(data.kantin) ? data.kantin : fallback.kantin,
+    capaian: Array.isArray(data.capaian) ? data.capaian : fallback.capaian,
+    produk: Array.isArray(data.produk) ? data.produk : fallback.produk,
+    absensiMapel: Array.isArray(data.absensiMapel) ? data.absensiMapel : fallback.absensiMapel,
+    settings: { ...fallback.settings, ...(data.settings || {}) },
+  };
+  db.settings = { limitHarian: Number(db.settings?.limitHarian || 20000), version: 2, ...db.settings };
+  return db;
+}
+
 /* ---------- DATABASE ---------- */
-let DB = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-if (!DB) { DB = seed(); localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); }
+let DB = normalizeDb(safeJSONParse(localStorage.getItem(STORAGE_KEY), null));
+localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
 const save = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
 
 /* ---------- STATE ---------- */
@@ -447,20 +502,20 @@ const state = {
 const getSiswa = id => DB.siswa.find(s => s.id === id);
 const getGuru  = id => DB.guru.find(g => g.id === id);
 const kelasList = () => [...new Set(DB.siswa.map(s => s.kelas))].sort();
-// Saldo hanya dipengaruhi top up & pembelian dengan saldo (cash tidak memotong saldo)
 const saldoSiswa = sid => DB.kantin.filter(k => k.siswaId === sid && k.metode !== 'Cash').reduce((a, k) => a + k.nominal, 0);
-const limitSiswa = s => s?.limit ?? DB.settings.limitHarian;
-// Pemakaian harian = semua pembelian hari ini (saldo + cash)
+const limitSiswa = s => s?.limit ?? DB.settings?.limitHarian ?? 20000;
 const terpakaiHariIni = sid => DB.kantin
   .filter(k => k.siswaId === sid && k.tanggal === today() && k.nominal < 0)
   .reduce((a, k) => a + Math.abs(k.nominal), 0);
 
 function parseSiswa(code) {
-  const n = String(code || '').trim().replace(/^ASN-S:/i, '');
-  return DB.siswa.find(s => s.nis === n);
+  const raw = String(code || '').trim();
+  const clean = raw.replace(/^ASN-S:/i, '').trim().replace(/^ASN-S:/i, '').trim();
+  return DB.siswa.find(s => s.nis === clean || s.id === clean);
 }
 function parseBarang(code) {
-  const k = String(code || '').trim().replace(/^ASN-B:/i, '').toUpperCase();
+  const raw = String(code || '').trim();
+  const k = raw.replace(/^ASN-B:/i, '').trim().toUpperCase();
   return DB.produk.find(p => p.kode.toUpperCase() === k);
 }
 
@@ -526,7 +581,7 @@ const Scanner = {
         if (code) {
           const now = Date.now();
           const fresh = code !== this.last || now - this.lastT > 1800;
-          this.last = code; this.lastT = now;   // selama kode masih terlihat, tidak diulang
+          this.last = code; this.lastT = now;
           if (fresh) cb(code);
         }
       }
@@ -605,12 +660,10 @@ function loginHTML() {
         <button class="btn btn-primary w100" type="submit" style="margin-top:18px">Masuk ke Sistem</button>
       </form>
       <div class="demo-box">
-        <strong>Akun Demo</strong>
-        <div class="demo-row"><span>Admin / Lembaga</span><code>admin / admin123</code></div>
-        <div class="demo-row"><span>Guru</span><code>guru / guru123</code></div>
-        <div class="demo-row"><span>Wali Murid</span><code>wali / wali123</code></div>
-        <div class="demo-row"><span>Petugas Kantin</span><code>kantin / kantin123</code></div>
+        <strong>Mode Demo</strong>
+        ${DEMO_CREDENTIALS.map(item => `<div class="demo-row"><span>${item.label}</span><code>${item.username} / ${item.password}</code></div>`).join('')}
       </div>
+      <div class="demo-note">Semua data demo tersimpan di browser Anda saat ini.</div>
     </div>
   </div>`;
 }
@@ -623,10 +676,12 @@ function bindLogin() {
     const p = fd.get('password');
     const found = DB.users.find(x => x.u === u && x.p === p);
     if (!found) { toast('Username atau password salah', 'err'); return; }
-    currentUser = found;
-    currentView = DEFAULT_VIEW[found.role];
+    currentUser = { ...found };
+    currentView = DEFAULT_VIEW[found.role] || 'dashboard';
     state.capaianSiswa = found.role === 'wali' ? found.ref : (DB.siswa[0]?.id || '');
     state.scan.jam = detectJam();
+    state.scan.mapel = getDefaultMapelForRole(found.role, found.ref);
+    persistSession(currentUser);
     kasirReset();
     render();
     toast('Selamat datang, ' + found.nama);
@@ -685,6 +740,7 @@ function bindApp() {
   $('#btnLogout').addEventListener('click', () => {
     Scanner.stop();
     currentUser = null;
+    persistSession(null);
     render();
   });
   renderView();
@@ -693,8 +749,18 @@ function bindApp() {
 /* =========================================================
    ROUTER
    ========================================================= */
+function restoreSessionUser() {
+  const saved = safeJSONParse(sessionStorage.getItem(SESSION_KEY), null);
+  if (!saved || !saved.u) return null;
+  const user = DB.users.find(x => x.u === saved.u && x.role === saved.role);
+  return user || null;
+}
+
 function render() {
   Scanner.stop();
+  if (!currentUser) {
+    currentUser = restoreSessionUser();
+  }
   if (!currentUser) {
     $('#app').innerHTML = loginHTML();
     bindLogin();
@@ -724,1220 +790,23 @@ function renderView() {
 }
 
 /* =========================================================
-   1. DASHBOARD (Admin / Guru / Wali)
+   DEMO SAFETY + UX
    ========================================================= */
-function viewDashboard() {
-  const t = today();
-  const isWali = currentUser.role === 'wali';
-  const myChild = isWali ? getSiswa(currentUser.ref) : null;
-
-  const totalSiswa = DB.siswa.length;
-  const absenHariIni = DB.absensiSiswa.filter(a => a.tanggal === t);
-  const hadir = absenHariIni.filter(a => a.status === 'Hadir').length;
-  const persenHadir = absenHariIni.length ? Math.round(hadir / absenHariIni.length * 100) : 0;
-
-  const guruHadir = DB.absensiGuru.filter(a => a.tanggal === t && a.status === 'Hadir').length;
-  const totalGuru = DB.guru.length;
-
-  const tunggakan = DB.pembayaran.filter(p => p.status === 'Belum Lunas')
-    .filter(p => !isWali || p.siswaId === myChild?.id)
-    .reduce((a, p) => a + p.nominal, 0);
-
-  const kantinHariIni = DB.kantin.filter(k => k.tanggal === t && k.nominal < 0)
-    .filter(k => !isWali || k.siswaId === myChild?.id);
-
-  if (isWali && myChild) {
-    const absenAnak = DB.absensiSiswa.filter(a => a.siswaId === myChild.id);
-    const hadirAnak = absenAnak.filter(a => a.status === 'Hadir').length;
-    const pctAnak = absenAnak.length ? Math.round(hadirAnak / absenAnak.length * 100) : 0;
-    const capai = DB.capaian.filter(c => c.siswaId === myChild.id);
-    const rata = capai.length ? Math.round(capai.reduce((a, c) => a + c.nilai, 0) / capai.length) : 0;
-    const saldo = saldoSiswa(myChild.id);
-    const belum = DB.pembayaran.filter(p => p.siswaId === myChild.id && p.status === 'Belum Lunas');
-
-    return `
-      <div class="info-strip" style="margin-bottom:16px">
-        <div>
-          <h3>Assalamu'alaikum, ${esc(currentUser.nama)} 👋</h3>
-          <p>Putra/putri Anda: <b>${esc(myChild.nama)}</b> — NIS ${myChild.nis} — Kelas ${myChild.kelas}</p>
-        </div>
-        <div class="big">${pctAnak}%</div>
-      </div>
-
-      <div class="grid g4" style="margin-bottom:16px">
-        <div class="stat"><div class="lbl">Kehadiran Anak</div><div class="val">${pctAnak}%</div>
-          <div class="hint">${hadirAnak} dari ${absenAnak.length} hari tercatat</div></div>
-        <div class="stat gold"><div class="lbl">Saldo Kantin</div><div class="val">${fmtRp(saldo)}</div>
-          <div class="hint">Sisa saldo jajan</div></div>
-        <div class="stat ${belum.length ? 'red' : ''}"><div class="lbl">Tagihan Belum Lunas</div>
-          <div class="val">${fmtRp(belum.reduce((a, p) => a + p.nominal, 0))}</div>
-          <div class="hint">${belum.length} item tagihan</div></div>
-        <div class="stat"><div class="lbl">Rata-rata Capaian</div><div class="val">${rata}</div>
-          <div class="hint">Dari ${capai.length} mata pelajaran</div></div>
-      </div>
-
-      <div class="grid g2">
-        <div class="card">
-          <div class="card-head"><div><h3>Riwayat Kehadiran Terakhir</h3><p>5 catatan terakhir</p></div></div>
-          ${absenAnak.slice(-5).reverse().map(a => `
-            <div class="list-item">
-              <div><div class="t">${fmtTgl(a.tanggal)}</div><div class="s">${esc(a.ket) || 'Kehadiran tercatat'}</div></div>
-              <span class="badge ${statusClass(a.status)}">${a.status}</span>
-            </div>`).join('') || '<div class="empty"><span class="ico">📭</span>Belum ada data kehadiran</div>'}
-        </div>
-        <div class="card">
-          <div class="card-head"><div><h3>Transaksi Kantin Terakhir</h3><p>5 transaksi terakhir</p></div></div>
-          ${DB.kantin.filter(k => k.siswaId === myChild.id).slice(-5).reverse().map(k => `
-            <div class="list-item">
-              <div><div class="t">${esc(k.keterangan)}</div><div class="s">${fmtTgl(k.tanggal)} • ${esc(k.metode || '-')}</div></div>
-              <b style="color:${k.nominal < 0 ? 'var(--danger)' : 'var(--primary)'}">
-                ${k.nominal < 0 ? '-' : '+'}${fmtRp(Math.abs(k.nominal))}
-              </b>
-            </div>`).join('') || '<div class="empty"><span class="ico">🍱</span>Belum ada transaksi</div>'}
-        </div>
-      </div>`;
-  }
-
-  return `
-    <div class="grid g4" style="margin-bottom:16px">
-      <div class="stat"><div class="lbl">Total Siswa</div><div class="val">${totalSiswa}</div>
-        <div class="hint">${kelasList().length} kelas aktif</div></div>
-      <div class="stat"><div class="lbl">Kehadiran Siswa Hari Ini</div><div class="val">${persenHadir}%</div>
-        <div class="hint">${hadir} hadir dari ${absenHariIni.length} siswa</div></div>
-      <div class="stat gold"><div class="lbl">Guru Hadir Hari Ini</div><div class="val">${guruHadir}/${totalGuru}</div>
-        <div class="hint">Termasuk izin & terlambat</div></div>
-      <div class="stat red"><div class="lbl">Total Tunggakan</div><div class="val">${fmtRp(tunggakan)}</div>
-        <div class="hint">${DB.pembayaran.filter(p => p.status === 'Belum Lunas').length} tagihan belum lunas</div></div>
-    </div>
-
-    <div class="grid g2">
-      <div class="card">
-        <div class="card-head">
-          <div><h3>Kehadiran per Kelas — Hari Ini</h3><p>Rekap kehadiran seluruh kelas</p></div>
-        </div>
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr><th>Kelas</th><th>Siswa</th><th>Hadir</th><th>Izin/Sakit</th><th>Alpa</th><th>%</th></tr></thead>
-            <tbody>
-              ${kelasList().map(k => {
-                const anak = DB.siswa.filter(s => s.kelas === k);
-                const ab = DB.absensiSiswa.filter(a => a.tanggal === t && anak.some(x => x.id === a.siswaId));
-                const h = ab.filter(a => a.status === 'Hadir').length;
-                const iz = ab.filter(a => a.status === 'Izin' || a.status === 'Sakit').length;
-                const al = ab.filter(a => a.status === 'Alpa').length;
-                const pct = ab.length ? Math.round(h / ab.length * 100) : 0;
-                return `<tr>
-                  <td><b>${k}</b></td><td>${anak.length}</td>
-                  <td><span class="badge b-hadir">${h}</span></td>
-                  <td><span class="badge b-izin">${iz}</span></td>
-                  <td><span class="badge ${al ? 'b-alpa' : 'b-hadir'}">${al}</span></td>
-                  <td><div style="display:flex;align-items:center;gap:8px">
-                    <div class="progress"><i style="width:${pct}%"></i></div><b style="font-size:12px">${pct}%</b>
-                  </div></td>
-                </tr>`;
-              }).join('')}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-head"><div><h3>Aktivitas Kantin Hari Ini</h3><p>${kantinHariIni.length} transaksi pembelian</p></div></div>
-        ${kantinHariIni.length ? kantinHariIni.slice(-6).reverse().map(k => `
-          <div class="list-item">
-            <div><div class="t">${esc(getSiswa(k.siswaId)?.nama || '-')}</div>
-              <div class="s">${esc(k.keterangan)} • ${esc(k.metode || '-')}</div></div>
-            <b style="color:var(--danger)">${fmtRp(Math.abs(k.nominal))}</b>
-          </div>`).join('') : '<div class="empty"><span class="ico">🍱</span>Belum ada transaksi hari ini</div>'}
-      </div>
-    </div>`;
-}
-
-function statusClass(s) {
-  return { 'Hadir':'b-hadir', 'Sakit':'b-sakit', 'Izin':'b-izin', 'Alpa':'b-alpa', 'Terlambat':'b-late' }[s] || 'b-hadir';
-}
-
-/* =========================================================
-   2. ABSEN SISWA (harian)
-   ========================================================= */
-function viewAbsenSiswa() {
-  if (currentUser.role === 'wali') {
-    const anak = getSiswa(currentUser.ref);
-    const data = DB.absensiSiswa.filter(a => a.siswaId === anak?.id).sort((a, b) => b.tanggal.localeCompare(a.tanggal));
-    const total = data.length;
-    const hadir = data.filter(d => d.status === 'Hadir').length;
-    const pct = total ? Math.round(hadir / total * 100) : 0;
-
-    return `
-      <div class="grid g4" style="margin-bottom:16px">
-        <div class="stat"><div class="lbl">Total Hari Tercatat</div><div class="val">${total}</div></div>
-        <div class="stat"><div class="lbl">Hadir</div><div class="val">${hadir}</div></div>
-        <div class="stat warn"><div class="lbl">Izin / Sakit</div>
-          <div class="val">${data.filter(d => d.status === 'Izin' || d.status === 'Sakit').length}</div></div>
-        <div class="stat red"><div class="lbl">Tanpa Keterangan</div>
-          <div class="val">${data.filter(d => d.status === 'Alpa').length}</div></div>
-      </div>
-      <div class="card">
-        <div class="card-head">
-          <div><h3>Riwayat Kehadiran — ${esc(anak?.nama || '-')}</h3>
-            <p>Kelas ${anak?.kelas} • NIS ${anak?.nis}</p></div>
-          <div style="font-size:16px;font-weight:800;color:var(--primary)">${pct}% Kehadiran</div>
-        </div>
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr><th>Tanggal</th><th>Status</th><th>Keterangan</th></tr></thead>
-            <tbody>
-              ${data.map(d => `<tr>
-                <td>${fmtTgl(d.tanggal)}</td>
-                <td><span class="badge ${statusClass(d.status)}">${d.status}</span></td>
-                <td>${esc(d.ket) || '-'}</td>
-              </tr>`).join('') || '<tr><td colspan="3"><div class="empty">Belum ada data kehadiran</div></td></tr>'}
-            </tbody>
-          </table>
-        </div>
-      </div>`;
-  }
-
-  const list = DB.siswa.filter(s => s.kelas === state.absenKelas);
-  const tgl = state.absenTanggal;
-
-  const rows = list.map(s => {
-    const rec = DB.absensiSiswa.find(a => a.tanggal === tgl && a.siswaId === s.id);
-    const st = rec?.status || 'Hadir';
-    return `<tr data-sid="${s.id}">
-      <td><b>${esc(s.nama)}</b><div class="s" style="font-size:11.5px;color:var(--muted)">${s.nis}</div></td>
-      <td>${s.kelas}</td>
-      <td>
-        <select class="sel-status">
-          ${['Hadir','Sakit','Izin','Alpa'].map(o => `<option ${o === st ? 'selected' : ''}>${o}</option>`).join('')}
-        </select>
-      </td>
-      <td><input class="in-ket" value="${esc(rec?.ket || '')}" placeholder="Keterangan (opsional)"
-           style="padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;width:100%;max-width:260px"></td>
-    </tr>`;
-  }).join('');
-
-  return `
-    <div class="card" style="margin-bottom:16px">
-      <div class="row-form">
-        <div class="field"><label>Tanggal</label>
-          <input type="date" id="inTanggal" value="${tgl}"></div>
-        <div class="field"><label>Kelas</label>
-          <select id="inKelas">${kelasList().map(k => `<option ${k === state.absenKelas ? 'selected' : ''}>${k}</option>`).join('')}</select></div>
-        <div class="field"><label>&nbsp;</label>
-          <button class="btn btn-ghost" id="btnTampil">🔄 Tampilkan</button></div>
-        <div class="field"><label>&nbsp;</label>
-          <button class="btn btn-primary" id="btnSimpanAbsen">💾 Simpan Absensi</button></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head">
-        <div><h3>Daftar Kehadiran Siswa</h3>
-          <p>Kelas ${state.absenKelas} • ${fmtTgl(tgl)} • ${list.length} siswa</p></div>
-      </div>
-      <div class="tbl-wrap">
-        <table id="tblAbsenSiswa">
-          <thead><tr><th>Nama Siswa</th><th>Kelas</th><th>Status</th><th>Keterangan</th></tr></thead>
-          <tbody>${rows || '<tr><td colspan="4"><div class="empty">Tidak ada siswa di kelas ini</div></td></tr>'}</tbody>
-        </table>
-      </div>
-    </div>`;
-}
-
-function bindAbsenSiswa() {
-  if (currentUser.role === 'wali') return;
-  $('#btnTampil').addEventListener('click', () => {
-    state.absenTanggal = $('#inTanggal').value || today();
-    state.absenKelas = $('#inKelas').value;
-    renderView();
-  });
-  $('#btnSimpanAbsen').addEventListener('click', () => {
-    const tgl = state.absenTanggal;
-    $$('#tblAbsenSiswa tbody tr[data-sid]').forEach(tr => {
-      const sid = tr.dataset.sid;
-      const status = tr.querySelector('.sel-status').value;
-      const ket = tr.querySelector('.in-ket').value.trim();
-      DB.absensiSiswa = DB.absensiSiswa.filter(a => !(a.tanggal === tgl && a.siswaId === sid));
-      DB.absensiSiswa.push({ id: uid(), tanggal: tgl, siswaId: sid, status, ket });
-    });
-    save();
-    toast('Absensi siswa berhasil disimpan');
-    renderView();
-  });
-}
-
-/* =========================================================
-   3. ABSEN GURU
-   ========================================================= */
-function viewAbsenGuru() {
-  if (currentUser.role === 'guru') {
-    const data = DB.absensiGuru.filter(a => a.guruId === currentUser.ref)
-      .sort((a, b) => b.tanggal.localeCompare(a.tanggal));
-    const total = data.length;
-    const hadir = data.filter(d => d.status === 'Hadir').length;
-    const pct = total ? Math.round(hadir / total * 100) : 0;
-    return `
-      <div class="grid g4" style="margin-bottom:16px">
-        <div class="stat"><div class="lbl">Hari Tercatat</div><div class="val">${total}</div></div>
-        <div class="stat"><div class="lbl">Hadir</div><div class="val">${hadir}</div></div>
-        <div class="stat warn"><div class="lbl">Terlambat</div>
-          <div class="val">${data.filter(d => d.status === 'Terlambat').length}</div></div>
-        <div class="stat"><div class="lbl">Persentase</div><div class="val">${pct}%</div></div>
-      </div>
-      <div class="card">
-        <div class="card-head"><div><h3>Riwayat Kehadiran Saya</h3><p>${esc(currentUser.nama)}</p></div></div>
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr><th>Tanggal</th><th>Status</th><th>Jam Datang</th><th>Keterangan</th></tr></thead>
-            <tbody>${data.map(d => `<tr>
-              <td>${fmtTgl(d.tanggal)}</td>
-              <td><span class="badge ${statusClass(d.status)}">${d.status}</span></td>
-              <td>${d.jamDatang || '-'}</td>
-              <td>${esc(d.ket) || '-'}</td>
-            </tr>`).join('') || '<tr><td colspan="4"><div class="empty">Belum ada data</div></td></tr>'}</tbody>
-          </table>
-        </div>
-      </div>`;
-  }
-
-  const tgl = state.absenGuruTanggal;
-
-  // Wali murid: hanya memantau (tanpa form isian)
-  if (currentUser.role === 'wali') {
-    const rows = DB.guru.map(g => {
-      const rec = DB.absensiGuru.find(a => a.tanggal === tgl && a.guruId === g.id);
-      return `<tr>
-        <td><b>${esc(g.nama)}</b><div style="font-size:11.5px;color:var(--muted)">${esc(g.mapel)}</div></td>
-        <td>${rec ? `<span class="badge ${statusClass(rec.status)}">${rec.status}</span>` : '<span class="badge b-late">Belum tercatat</span>'}</td>
-        <td>${rec?.jamDatang || '-'}</td>
-        <td>${esc(rec?.ket) || '-'}</td>
-      </tr>`;
-    }).join('');
-    return `
-      <div class="card" style="margin-bottom:16px">
-        <div class="row-form">
-          <div class="field"><label>Tanggal</label><input type="date" id="inTglGuru" value="${tgl}"></div>
-          <div class="field"><label>&nbsp;</label><button class="btn btn-ghost" id="btnTampilGuru">🔄 Tampilkan</button></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-head"><div><h3>Kehadiran Guru</h3><p>${fmtTgl(tgl)} • ${DB.guru.length} guru</p></div></div>
-        <div class="tbl-wrap"><table>
-          <thead><tr><th>Nama Guru</th><th>Status</th><th>Jam Datang</th><th>Keterangan</th></tr></thead>
-          <tbody>${rows}</tbody></table></div>
-      </div>`;
-  }
-
-  const rows = DB.guru.map(g => {
-    const rec = DB.absensiGuru.find(a => a.tanggal === tgl && a.guruId === g.id);
-    const st = rec?.status || 'Hadir';
-    return `<tr data-gid="${g.id}">
-      <td><b>${esc(g.nama)}</b><div style="font-size:11.5px;color:var(--muted)">${esc(g.mapel)}</div></td>
-      <td>
-        <select class="sel-status">
-          ${['Hadir','Terlambat','Izin','Sakit','Alpa'].map(o => `<option ${o === st ? 'selected' : ''}>${o}</option>`).join('')}
-        </select>
-      </td>
-      <td><input class="in-jam" type="time" value="${rec?.jamDatang || '07:00'}"
-           style="padding:6px 9px;border:1.5px solid var(--border);border-radius:7px"></td>
-      <td><input class="in-ket" value="${esc(rec?.ket || '')}" placeholder="Keterangan"
-           style="padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;width:100%;max-width:240px"></td>
-    </tr>`;
-  }).join('');
-
-  return `
-    <div class="card" style="margin-bottom:16px">
-      <div class="row-form">
-        <div class="field"><label>Tanggal</label><input type="date" id="inTglGuru" value="${tgl}"></div>
-        <div class="field"><label>&nbsp;</label><button class="btn btn-ghost" id="btnTampilGuru">🔄 Tampilkan</button></div>
-        <div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="btnSimpanGuru">💾 Simpan Absensi Guru</button></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-head">
-        <div><h3>Daftar Kehadiran Guru</h3>
-          <p>${fmtTgl(tgl)} • ${DB.guru.length} guru</p></div>
-      </div>
-      <div class="tbl-wrap">
-        <table id="tblAbsenGuru">
-          <thead><tr><th>Nama Guru</th><th>Status</th><th>Jam Datang</th><th>Keterangan</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-    </div>`;
-}
-
-function bindAbsenGuru() {
-  if (currentUser.role === 'guru') return;
-  $('#btnTampilGuru').addEventListener('click', () => {
-    state.absenGuruTanggal = $('#inTglGuru').value || today();
-    renderView();
-  });
-  const sv = $('#btnSimpanGuru');
-  if (!sv) return;
-  sv.addEventListener('click', () => {
-    const tgl = state.absenGuruTanggal;
-    $$('#tblAbsenGuru tbody tr[data-gid]').forEach(tr => {
-      const gid = tr.dataset.gid;
-      const status = tr.querySelector('.sel-status').value;
-      const jamDatang = tr.querySelector('.in-jam').value;
-      const ket = tr.querySelector('.in-ket').value.trim();
-      DB.absensiGuru = DB.absensiGuru.filter(a => !(a.tanggal === tgl && a.guruId === gid));
-      DB.absensiGuru.push({ id: uid(), tanggal: tgl, guruId: gid, status, jamDatang, ket });
-    });
-    save();
-    toast('Absensi guru berhasil disimpan');
-    renderView();
-  });
-}
-
-/* =========================================================
-   4. ADMINISTRASI SEKOLAH
-   ========================================================= */
-function viewAdministrasi() {
-  const isWali = currentUser.role === 'wali';
-  let list = DB.pembayaran;
-  if (isWali) list = list.filter(p => p.siswaId === currentUser.ref);
-  list = [...list].sort((a, b) => (a.status === 'Belum Lunas' ? -1 : 1) - (b.status === 'Belum Lunas' ? -1 : 1));
-
-  const totalTagih = list.reduce((a, p) => a + p.nominal, 0);
-  const totalBayar = list.filter(p => p.status === 'Lunas').reduce((a, p) => a + p.nominal, 0);
-  const totalSisa = totalTagih - totalBayar;
-
-  return `
-    <div class="grid g3" style="margin-bottom:16px">
-      <div class="stat"><div class="lbl">Total Tagihan</div><div class="val">${fmtRp(totalTagih)}</div></div>
-      <div class="stat gold"><div class="lbl">Sudah Dibayar</div><div class="val">${fmtRp(totalBayar)}</div></div>
-      <div class="stat red"><div class="lbl">Sisa Tagihan</div><div class="val">${fmtRp(totalSisa)}</div></div>
-    </div>
-
-    <div class="card">
-      <div class="card-head">
-        <div><h3>${isWali ? 'Tagihan Putra/Putri Anda' : 'Daftar Tagihan Seluruh Siswa'}</h3>
-          <p>Rincian administrasi sekolah yang harus dibayarkan</p></div>
-      </div>
-      <div class="tbl-wrap">
-        <table>
-          <thead>
-            <tr>
-              ${isWali ? '' : '<th>Siswa</th><th>Kelas</th>'}
-              <th>Jenis Tagihan</th><th>Nominal</th><th>Jatuh Tempo</th><th>Status</th>
-              ${isWali ? '' : '<th>Aksi</th>'}
-            </tr>
-          </thead>
-          <tbody>
-            ${list.map(p => {
-              const s = getSiswa(p.siswaId);
-              return `<tr>
-                ${isWali ? '' : `<td><b>${esc(s?.nama || '-')}</b></td><td>${s?.kelas || '-'}</td>`}
-                <td>${esc(p.jenis)}</td>
-                <td><b>${fmtRp(p.nominal)}</b></td>
-                <td>${fmtTgl(p.jatuhTempo)}</td>
-                <td><span class="badge ${p.status === 'Lunas' ? 'b-lunas' : 'b-belum'}">${p.status}</span></td>
-                ${isWali ? '' : `<td>${p.status === 'Belum Lunas'
-                  ? `<button class="btn btn-sm btn-primary btn-lunas" data-id="${p.id}">✓ Tandai Lunas</button>`
-                  : '<span style="font-size:12px;color:var(--muted)">Selesai</span>'}</td>`}
-              </tr>`;
-            }).join('') || `<tr><td colspan="7"><div class="empty"><span class="ico">💰</span>Belum ada tagihan</div></td></tr>`}
-          </tbody>
-        </table>
-      </div>
-    </div>`;
-}
-
-function bindAdministrasi() {
-  $$('.btn-lunas').forEach(b => b.addEventListener('click', () => {
-    const p = DB.pembayaran.find(x => x.id === b.dataset.id);
-    if (!p) return;
-    p.status = 'Lunas';
-    p.tanggalBayar = today();
-    save();
-    toast('Pembayaran ditandai lunas');
-    renderView();
-  }));
-}
-
-/* =========================================================
-   5. RIWAYAT KANTIN (Admin / Wali / Petugas Kantin)
-   ========================================================= */
-function metodeBadge(m) {
-  const cls = { 'Saldo': 'b-saldo', 'Cash': 'b-cash', 'Top Up': 'b-topup' }[m] || 'b-saldo';
-  return `<span class="badge ${cls}">${esc(m || '-')}</span>`;
-}
-
-function viewKantin() {
-  const role = currentUser.role, isWali = role === 'wali', isAdmin = role === 'admin';
-  let list = DB.kantin;
-  if (isWali) list = list.filter(k => k.siswaId === currentUser.ref);
-  list = [...list].sort((a, b) => ((b.tanggal + (b.waktu || '')).localeCompare(a.tanggal + (a.waktu || ''))));
-
-  const beli = list.filter(k => k.nominal < 0);
-  const beliSaldo = beli.filter(k => k.metode !== 'Cash').reduce((a, k) => a + Math.abs(k.nominal), 0);
-  const beliCash  = beli.filter(k => k.metode === 'Cash').reduce((a, k) => a + Math.abs(k.nominal), 0);
-  const totalTopup = list.filter(k => k.nominal > 0).reduce((a, k) => a + k.nominal, 0);
-  const saldoTampil = isWali ? saldoSiswa(currentUser.ref) : totalTopup - beliSaldo;
-
-  const formAdmin = !isAdmin ? '' : `
-    <div class="grid g2" style="margin-bottom:16px">
-      <div class="card">
-        <div class="card-head"><div><h3>Catat Transaksi Manual</h3><p>Top up saldo atau pembelian (tunduk pada saldo & limit harian)</p></div></div>
-        <form id="formKantin">
-          <div class="row-form">
-            <div class="field"><label>Siswa</label>
-              <select name="siswaId" required>
-                ${DB.siswa.map(s => `<option value="${s.id}">${esc(s.nama)} — ${s.kelas}</option>`).join('')}
-              </select>
-            </div>
-            <div class="field"><label>Jenis Transaksi</label>
-              <select name="jenis" required>
-                <option value="beli">Pembelian (saldo)</option>
-                <option value="cash">Pembelian (cash)</option>
-                <option value="topup">Top Up Saldo</option>
-              </select>
-            </div>
-            <div class="field"><label>Keterangan</label>
-              <input name="keterangan" required placeholder="Contoh: Nasi ayam + air mineral"></div>
-            <div class="field"><label>Nominal (Rp)</label>
-              <input name="nominal" type="number" min="500" step="500" required placeholder="10000"></div>
-            <div class="field"><label>&nbsp;</label>
-              <button class="btn btn-primary" type="submit">＋ Simpan</button></div>
-          </div>
-        </form>
-      </div>
-      <div class="card">
-        <div class="card-head"><div><h3>Limit Jajan Harian</h3><p>Berlaku untuk pembayaran saldo maupun cash</p></div></div>
-        <form id="formLimit">
-          <div class="row-form">
-            <div class="field"><label>Limit per siswa per hari (Rp)</label>
-              <input name="limit" type="number" min="1000" step="500" required value="${DB.settings.limitHarian}"></div>
-            <div class="field"><label>&nbsp;</label>
-              <button class="btn btn-primary" type="submit">💾 Simpan Limit</button></div>
-          </div>
-        </form>
-      </div>
-    </div>`;
-
-  const infoWali = !isWali ? '' : (() => {
-    const s = getSiswa(currentUser.ref);
-    return `<div class="alert info" style="margin-bottom:16px">
-      Limit jajan harian: <b>${fmtRp(limitSiswa(s))}</b> • Terpakai hari ini: <b>${fmtRp(terpakaiHariIni(s.id))}</b>
-      (termasuk pembayaran cash)</div>`;
-  })();
-
-  return `
-    ${formAdmin}${infoWali}
-    <div class="grid g4" style="margin-bottom:16px">
-      <div class="stat"><div class="lbl">Pembelian via Saldo</div><div class="val">${fmtRp(beliSaldo)}</div>
-        <div class="hint">${beli.filter(k => k.metode !== 'Cash').length} transaksi</div></div>
-      <div class="stat warn"><div class="lbl">Pembelian via Cash</div><div class="val">${fmtRp(beliCash)}</div>
-        <div class="hint">${beli.filter(k => k.metode === 'Cash').length} transaksi</div></div>
-      <div class="stat gold"><div class="lbl">Total Top Up</div><div class="val">${fmtRp(totalTopup)}</div>
-        <div class="hint">${list.filter(k => k.nominal > 0).length} transaksi</div></div>
-      <div class="stat"><div class="lbl">${isWali ? 'Saldo Anak' : 'Saldo Tersimpan'}</div>
-        <div class="val">${fmtRp(saldoTampil)}</div>
-        <div class="hint">Sisa saldo kantin</div></div>
-    </div>
-
-    <div class="card">
-      <div class="card-head">
-        <div><h3>${isWali ? 'Riwayat Jajan Putra/Putri Anda' : 'Riwayat Transaksi Kantin'}</h3>
-          <p>Transparansi transaksi siswa di kantin sekolah — tercatat metode pembayaran saldo / cash</p></div>
-      </div>
-      <div class="tbl-wrap">
-        <table>
-          <thead>
-            <tr>${isWali ? '' : '<th>Siswa</th><th>Kelas</th>'}
-              <th>Tanggal</th><th>Keterangan</th><th>Metode</th><th>Nominal</th><th>Saldo Siswa Kini</th></tr>
-          </thead>
-          <tbody>
-            ${list.map(k => {
-              const s = getSiswa(k.siswaId);
-              return `<tr>
-                ${isWali ? '' : `<td><b>${esc(s?.nama || '-')}</b></td><td>${s?.kelas || '-'}</td>`}
-                <td>${fmtTgl(k.tanggal)}${k.waktu ? `<div style="font-size:11px;color:var(--muted)">${k.waktu.slice(0, 5)}</div>` : ''}</td>
-                <td>${esc(k.keterangan)}</td>
-                <td>${metodeBadge(k.metode)}</td>
-                <td><b style="color:${k.nominal < 0 ? 'var(--danger)' : 'var(--primary)'}">
-                  ${k.nominal < 0 ? '-' : '+'}${fmtRp(Math.abs(k.nominal))}</b></td>
-                <td>${fmtRp(saldoSiswa(k.siswaId))}</td>
-              </tr>`;
-            }).join('') || '<tr><td colspan="7"><div class="empty"><span class="ico">🍱</span>Belum ada transaksi</div></td></tr>'}
-          </tbody>
-        </table>
-      </div>
-    </div>`;
-}
-
-function bindKantin() {
-  const form = $('#formKantin');
-  if (form) form.addEventListener('submit', e => {
-    e.preventDefault();
-    const fd = new FormData(form);
-    const nominal = Math.abs(Number(fd.get('nominal')));
-    const jenis = fd.get('jenis');
-    const siswaId = fd.get('siswaId');
-    let metode = 'Top Up';
-    if (jenis !== 'topup') {
-      metode = jenis === 'cash' ? 'Cash' : 'Saldo';
-      const v = validasiBelanja(siswaId, nominal, metode);
-      if (!v.ok) { toast(v.msg, 'err'); return; }
-    }
-    DB.kantin.push({
-      id: uid(), siswaId, tanggal: today(), waktu: nowHMS(),
-      keterangan: fd.get('keterangan').trim(),
-      nominal: jenis === 'topup' ? nominal : -nominal, metode,
-    });
-    save();
-    toast('Transaksi kantin tersimpan');
-    renderView();
-  });
-
-  const fl = $('#formLimit');
-  if (fl) fl.addEventListener('submit', e => {
-    e.preventDefault();
-    DB.settings.limitHarian = Math.max(1000, Number(new FormData(fl).get('limit')) || 20000);
-    save();
-    toast('Limit harian diperbarui: ' + fmtRp(DB.settings.limitHarian));
-    renderView();
-  });
-}
-
-/* =========================================================
-   6. CAPAIAN PEMBELAJARAN
-   ========================================================= */
-function viewCapaian() {
-  const isWali = currentUser.role === 'wali';
-  const sid = isWali ? currentUser.ref : state.capaianSiswa;
-  const siswa = getSiswa(sid);
-  const data = DB.capaian.filter(c => c.siswaId === sid);
-
-  const rata = data.length ? Math.round(data.reduce((a, c) => a + c.nilai, 0) / data.length) : 0;
-
-  const selector = isWali ? '' : `
-    <div class="field" style="max-width:320px">
-      <label>Pilih Siswa</label>
-      <select id="selSiswaCapaian">
-        ${DB.siswa.map(s => `<option value="${s.id}" ${s.id === sid ? 'selected' : ''}>${esc(s.nama)} — ${s.kelas}</option>`).join('')}
-      </select>
-    </div>`;
-
-  const formTambah = isWali ? '' : `
-    <div class="card" style="margin-bottom:16px">
-      <div class="card-head"><div><h3>Tambah Catatan Capaian</h3><p>Input progres pembelajaran siswa</p></div></div>
-      <form id="formCapaian">
-        <input type="hidden" name="siswaId" value="${sid}">
-        <div class="row-form">
-          <div class="field"><label>Mata Pelajaran</label>
-            <input name="mapel" required placeholder="Contoh: Matematika"></div>
-          <div class="field" style="grid-column:span 2"><label>Materi / Bab</label>
-            <input name="materi" required placeholder="Contoh: Penjumlahan 1–20"></div>
-          <div class="field"><label>Nilai (0–100)</label>
-            <input name="nilai" type="number" min="0" max="100" required placeholder="85"></div>
-          <div class="field" style="grid-column:span 3"><label>Catatan Guru</label>
-            <input name="catatan" placeholder="Catatan perkembangan siswa"></div>
-          <div class="field"><label>&nbsp;</label>
-            <button class="btn btn-primary" type="submit">＋ Simpan</button></div>
-        </div>
-      </form>
-    </div>`;
-
-  return `
-    <div class="card" style="margin-bottom:16px">
-      <div class="card-head" style="margin-bottom:0">
-        <div>
-          <h3>Capaian Pembelajaran — ${esc(siswa?.nama || '-')}</h3>
-          <p>Kelas ${siswa?.kelas || '-'} • NIS ${siswa?.nis || '-'} • Rata-rata nilai: <b>${rata}</b></p>
-        </div>
-        ${selector}
-      </div>
-    </div>
-
-    ${formTambah}
-
-    <div class="card">
-      <div class="card-head"><div><h3>Rincian Progres per Mata Pelajaran</h3>
-        <p>${data.length} catatan pembelajaran</p></div></div>
-      ${data.length ? data.map(c => `
-        <div style="padding:13px 0;border-bottom:1px solid #eef3ef">
-          <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center">
-            <div>
-              <div style="font-weight:700;font-size:13.5px">${esc(c.mapel)}</div>
-              <div style="font-size:12.5px;color:var(--muted);margin-top:2px">${esc(c.materi)}</div>
-              ${c.catatan ? `<div style="font-size:12px;color:#4b6355;margin-top:5px;background:#f5f9f6;padding:6px 10px;border-radius:8px;display:inline-block">📝 ${esc(c.catatan)}</div>` : ''}
-            </div>
-            <div style="min-width:170px">
-              <div style="display:flex;align-items:center;gap:9px">
-                <div class="progress" style="flex:1"><i style="width:${c.nilai}%"></i></div>
-                <b style="font-size:13px;color:var(--primary)">${c.nilai}</b>
-              </div>
-              <div style="font-size:11px;color:var(--muted);text-align:right;margin-top:4px">${fmtTgl(c.tanggal)}</div>
-            </div>
-          </div>
-        </div>`).join('') : '<div class="empty"><span class="ico">📈</span>Belum ada catatan capaian pembelajaran</div>'}
-    </div>`;
-}
-
-function bindCapaian() {
-  const sel = $('#selSiswaCapaian');
-  if (sel) sel.addEventListener('change', () => {
-    state.capaianSiswa = sel.value;
-    renderView();
-  });
-
-  const form = $('#formCapaian');
-  if (!form) return;
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    const fd = new FormData(form);
-    DB.capaian.push({
-      id: uid(),
-      siswaId: fd.get('siswaId'),
-      mapel: fd.get('mapel').trim(),
-      materi: fd.get('materi').trim(),
-      nilai: Number(fd.get('nilai')),
-      catatan: (fd.get('catatan') || '').trim(),
-      tanggal: today(),
-    });
-    save();
-    toast('Capaian pembelajaran tersimpan');
-    renderView();
-  });
-}
-
-/* =========================================================
-   7. DASHBOARD KANTIN — KASIR SCAN QR
-   Alur: (1) scan QR barang sampai semua item masuk
-         (2) scan QR siswa → validasi saldo & limit otomatis
-         (3) proses (saldo / cash) atau tolak & batalkan item
-   ========================================================= */
-const kasir = { step: 'items', cart: [], siswaId: null, metode: 'Saldo', diterima: 0, hasil: null };
-function kasirReset() { Object.assign(kasir, { step: 'items', cart: [], siswaId: null, metode: 'Saldo', diterima: 0, hasil: null }); }
-const kasirTotal = () => kasir.cart.reduce((a, c) => a + c.harga * c.qty, 0);
-const evalKasir = () => validasiBelanja(kasir.siswaId, kasirTotal(), kasir.metode);
-
-function viewKasir() {
-  return `
-  <div id="kasirRoot">
-    <div id="kasirSteps"></div>
-    <div class="two-col">
-      <div class="card">
-        <div class="card-head"><div><h3 id="kasirScanTitle"></h3><p id="kasirScanSub"></p></div></div>
-        <div class="cam-box" id="kasirCam">
-          <video id="kasirVideo" playsinline muted></video>
-          <div class="cam-ph">📷 Kamera nonaktif<br>Klik “Aktifkan Kamera”, gunakan scanner barcode, atau ketik kode di bawah</div>
-        </div>
-        <button class="btn btn-ghost w100" id="btnCam" style="margin-top:10px">📷 Aktifkan Kamera</button>
-        <form class="manual-form" id="formManual" style="margin-top:10px">
-          <input id="inManual" autocomplete="off" autofocus>
-          <button class="btn btn-primary" type="submit">OK</button>
-        </form>
-        <div id="kasirQuick" style="margin-top:16px"></div>
-      </div>
-      <div class="card" id="kasirPanel"></div>
-    </div>
-  </div>`;
-}
-
-function bindKasir() {
-  const root = $('#kasirRoot');
-  renderKasirStep(); renderKasirPanel();
-
-  $('#btnCam').addEventListener('click', e =>
-    camToggle(e.currentTarget, $('#kasirVideo'), $('#kasirCam'), code => onKasirScan(code)));
-  $('#formManual').addEventListener('submit', e => {
-    e.preventDefault();
-    const v = $('#inManual').value; $('#inManual').value = '';
-    onKasirScan(v);
-    $('#inManual').focus();
-  });
-
-  root.addEventListener('click', e => {
-    const b = e.target.closest('[data-act]'); if (!b) return;
-    const a = b.dataset.act, kode = b.dataset.kode;
-    if (a === 'scan') { onKasirScan(b.dataset.code); return; }
-    if (a === 'plus' || a === 'minus' || a === 'del') {
-      const it = kasir.cart.find(c => c.kode === kode); if (!it) return;
-      if (a === 'plus') it.qty++;
-      if (a === 'minus') it.qty--;
-      if (a === 'del' || it.qty <= 0) kasir.cart = kasir.cart.filter(c => c.kode !== kode);
-    }
-    if (a === 'clear') kasir.cart = [];
-    if (a === 'next') {
-      if (!kasir.cart.length) { toast('Belum ada barang yang dipindai', 'err'); return; }
-      kasir.step = 'siswa'; kasir.siswaId = null; kasir.metode = 'Saldo'; kasir.diterima = 0;
-    }
-    if (a === 'back') { kasir.step = 'items'; kasir.siswaId = null; }
-    if (a === 'cancelAll') { kasirReset(); toast('Semua item dibatalkan'); }
-    if (a === 'cash') kasir.metode = 'Cash';
-    if (a === 'ganti') kasir.siswaId = null;
-    if (a === 'proses') { kasirProses(); return; }
-    if (a === 'baru') kasirReset();
-    renderKasirStep(); renderKasirPanel();
-  });
-
-  root.addEventListener('change', e => {
-    if (e.target.id === 'selMetode') { kasir.metode = e.target.value; kasir.diterima = 0; renderKasirPanel(); }
-  });
-  root.addEventListener('input', e => {
-    if (e.target.id !== 'inDiterima') return;
-    kasir.diterima = Number(e.target.value) || 0;
-    const total = kasirTotal(), ev = evalKasir();
-    const k = $('#kembalian'), btn = $('#btnProses');
-    if (k) k.textContent = kasir.diterima >= total ? fmtRp(kasir.diterima - total) : 'Uang kurang ' + fmtRp(total - kasir.diterima);
-    if (btn) btn.disabled = !(ev.ok && kasir.diterima >= total);
-  });
-}
-
-function onKasirScan(raw) {
-  raw = String(raw || '').trim(); if (!raw) return;
-  const kind = kindOf(raw);
-  if (kasir.step === 'items') {
-    if (kind === 'siswa') { toast('Itu QR siswa. Selesaikan scan barang dulu, lalu klik “Lanjut”.', 'err'); return; }
-    const p = parseBarang(raw);
-    if (!p) { toast('QR barang tidak dikenali: ' + raw, 'err'); return; }
-    const it = kasir.cart.find(c => c.kode === p.kode);
-    if (it) it.qty++; else kasir.cart.push({ kode: p.kode, nama: p.nama, harga: p.harga, qty: 1 });
-    renderKasirPanel();
-    toast(p.nama + ' ditambahkan');
-  } else if (kasir.step === 'siswa') {
-    if (kind === 'barang') { toast('Itu QR barang. Sekarang scan QR siswa.', 'err'); return; }
-    const s = parseSiswa(raw);
-    if (!s) { toast('QR siswa tidak dikenali: ' + raw, 'err'); return; }
-    kasir.siswaId = s.id; kasir.metode = 'Saldo'; kasir.diterima = 0;
-    renderKasirPanel();
-    const ev = evalKasir();
-    if (ev.ok) toast('Siswa: ' + s.nama + ' — transaksi valid');
-    else toast('Ditolak: ' + ev.msg, 'err');
-  } else {
-    toast('Transaksi sudah selesai. Klik “Transaksi Baru”.', 'err');
+function resetDemoState() {
+  state.scan.jam = detectJam();
+  state.scan.mapel = getDefaultMapelForRole(currentUser?.role, currentUser?.ref);
+  state.absenTanggal = today();
+  state.absenKelas = '1A';
+  if (currentUser?.role === 'wali') {
+    state.capaianSiswa = currentUser.ref || DB.siswa[0]?.id || '';
   }
 }
 
-function kasirProses() {
-  const ev = evalKasir();
-  const total = kasirTotal();
-  if (!ev.ok) { toast(ev.msg, 'err'); return; }
-  if (kasir.metode === 'Cash' && kasir.diterima < total) { toast('Uang diterima kurang', 'err'); return; }
-  const s = getSiswa(kasir.siswaId);
-  const items = kasir.cart.map(c => ({ kode: c.kode, nama: c.nama, qty: c.qty, harga: c.harga }));
-  const rec = {
-    id: uid(), siswaId: s.id, tanggal: today(), waktu: nowHMS(),
-    keterangan: items.map(i => `${i.qty}× ${i.nama}`).join(', '),
-    nominal: -total, metode: kasir.metode, items, petugas: currentUser.nama,
-  };
-  DB.kantin.push(rec); save();
-  kasir.hasil = { rec, saldoSetelah: saldoSiswa(s.id), kembalian: kasir.metode === 'Cash' ? kasir.diterima - total : 0 };
-  kasir.step = 'selesai';
-  renderKasirStep(); renderKasirPanel();
-  toast('Transaksi berhasil (' + kasir.metode + ')');
-}
+window.addEventListener('DOMContentLoaded', () => {
+  resetDemoState();
+  render();
+});
 
-function renderKasirStep() {
-  const el = $('#kasirSteps'); if (!el) return;
-  const idx = { items: 0, siswa: 1, selesai: 2 }[kasir.step];
-  el.innerHTML = `<div class="steps">${['1. Scan QR Barang', '2. Scan QR Siswa & Validasi', '3. Selesai'].map((t, i) =>
-    `<div class="step ${i === idx ? 'active' : i < idx ? 'done' : ''}"><i>${i < idx ? '✓' : i + 1}</i>${t}</div>`).join('')}</div>`;
-
-  const T = {
-    items:   ['Scan QR Barang', 'Pindai semua barang belanjaan satu per satu', 'Kode barang (contoh: BRG-001) lalu Enter'],
-    siswa:   ['Scan QR Siswa', 'Pindai kartu QR siswa pemilik transaksi', 'NIS / kode QR siswa lalu Enter'],
-    selesai: ['Transaksi Selesai', 'Mulai transaksi baru untuk siswa berikutnya', ''],
-  }[kasir.step];
-  $('#kasirScanTitle').textContent = T[0];
-  $('#kasirScanSub').textContent = T[1];
-  const inp = $('#inManual'); if (inp) { inp.placeholder = T[2]; inp.disabled = kasir.step === 'selesai'; }
-
-  let q = '';
-  if (kasir.step === 'items') {
-    q = `<div class="quick-lbl">Simulasi scan (demo) — ketuk barang</div><div class="chip-row">${DB.produk.map(p =>
-      `<button class="chip" data-act="scan" data-code="${esc(qrBarangText(p))}">${esc(p.nama)} · ${fmtRp(p.harga)}</button>`).join('')}</div>`;
-  } else if (kasir.step === 'siswa') {
-    q = `<div class="quick-lbl">Simulasi scan (demo) — ketuk siswa</div><div class="chip-row">${DB.siswa.map(s =>
-      `<button class="chip" data-act="scan" data-code="${esc(qrSiswaText(s))}">${esc(s.nama.split(' ').slice(0, 2).join(' '))} · ${s.kelas}</button>`).join('')}</div>`;
-  }
-  $('#kasirQuick').innerHTML = q;
-}
-
-function cartTable(editable) {
-  if (!kasir.cart.length) return '<div class="empty"><span class="ico">🛒</span>Belum ada barang. Scan QR barang untuk menambahkan.</div>';
-  return `<div class="tbl-wrap"><table>
-    <thead><tr><th>Barang</th><th>Harga</th><th>Qty</th><th>Subtotal</th>${editable ? '<th></th>' : ''}</tr></thead>
-    <tbody>${kasir.cart.map(c => `<tr>
-      <td><b>${esc(c.nama)}</b><div style="font-size:11px;color:var(--muted)">${esc(c.kode)}</div></td>
-      <td>${fmtRp(c.harga)}</td>
-      <td>${editable ? `<span class="qty"><button data-act="minus" data-kode="${esc(c.kode)}">−</button><b>${c.qty}</b><button data-act="plus" data-kode="${esc(c.kode)}">+</button></span>` : c.qty}</td>
-      <td><b>${fmtRp(c.harga * c.qty)}</b></td>
-      ${editable ? `<td><button class="btn btn-sm btn-danger" data-act="del" data-kode="${esc(c.kode)}" title="Batalkan item">✕</button></td>` : ''}
-    </tr>`).join('')}</tbody></table></div>`;
-}
-
-function renderKasirPanel() {
-  const el = $('#kasirPanel'); if (!el) return;
-  const total = kasirTotal();
-
-  /* ---- Langkah 3: selesai ---- */
-  if (kasir.step === 'selesai') {
-    const h = kasir.hasil, r = h.rec, s = getSiswa(r.siswaId), tot = Math.abs(r.nominal);
-    el.innerHTML = `<div class="stack">
-      <div class="alert ok"><b>✅ Transaksi berhasil</b> — ${esc(s.nama)} (Kelas ${s.kelas})</div>
-      <div class="tbl-wrap"><table><thead><tr><th>Barang</th><th>Qty</th><th>Subtotal</th></tr></thead><tbody>
-        ${r.items.map(i => `<tr><td>${esc(i.nama)}</td><td>${i.qty}</td><td>${fmtRp(i.harga * i.qty)}</td></tr>`).join('')}
-      </tbody></table></div>
-      <div class="list-item"><span>Total belanja</span><b>${fmtRp(tot)}</b></div>
-      <div class="list-item"><span>Metode pembayaran</span>${metodeBadge(r.metode)}</div>
-      ${r.metode === 'Cash'
-        ? `<div class="list-item"><span>Uang diterima / kembalian</span><b>${fmtRp(r.items.length ? kasir.diterima : 0)} / ${fmtRp(h.kembalian)}</b></div>`
-        : `<div class="list-item"><span>Saldo setelah transaksi</span><b>${fmtRp(h.saldoSetelah)}</b></div>`}
-      <div class="list-item"><span>Terpakai hari ini / limit</span><b>${fmtRp(terpakaiHariIni(s.id))} / ${fmtRp(limitSiswa(s))}</b></div>
-      <button class="btn btn-primary w100" data-act="baru">＋ Transaksi Baru</button></div>`;
-    return;
-  }
-
-  /* ---- Langkah 1: input barang ---- */
-  if (kasir.step === 'items') {
-    el.innerHTML = `
-      <div class="card-head"><div><h3>🛒 Daftar Belanja</h3><p>${kasir.cart.reduce((a, c) => a + c.qty, 0)} item • batalkan item dengan tombol ✕</p></div></div>
-      ${cartTable(true)}
-      <div class="list-item" style="margin-top:8px"><span style="font-weight:700">Total</span>
-        <b style="font-size:20px;color:var(--primary)">${fmtRp(total)}</b></div>
-      <div class="actions" style="margin-top:10px">
-        <button class="btn btn-ghost" data-act="clear" ${kasir.cart.length ? '' : 'disabled'}>Kosongkan</button>
-        <button class="btn btn-primary" style="flex:1" data-act="next" ${kasir.cart.length ? '' : 'disabled'}>Semua item sudah dipindai → Scan QR Siswa</button>
-      </div>`;
-    return;
-  }
-
-  /* ---- Langkah 2: scan siswa & validasi ---- */
-  const s = getSiswa(kasir.siswaId);
-  if (!s) {
-    el.innerHTML = `<div class="stack">
-      <div class="card-head" style="margin-bottom:0"><div><h3>🧾 Ringkasan Belanja</h3><p>Menunggu scan QR siswa…</p></div></div>
-      ${cartTable(false)}
-      <div class="list-item"><span style="font-weight:700">Total</span><b style="font-size:20px;color:var(--primary)">${fmtRp(total)}</b></div>
-      <div class="alert info">Pindai kartu QR siswa untuk mengidentifikasi pemilik transaksi. Saldo dan limit harian akan divalidasi otomatis.</div>
-      <div class="actions">
-        <button class="btn btn-ghost" data-act="back">← Ubah Item</button>
-        <button class="btn btn-danger" data-act="cancelAll">Batalkan Semua Item</button>
-      </div></div>`;
-    return;
-  }
-
-  const ev = evalKasir();
-  const cashMode = kasir.metode === 'Cash';
-  const bisaProses = ev.ok && (!cashMode || kasir.diterima >= total);
-  el.innerHTML = `<div class="stack">
-    <div class="card-head" style="margin-bottom:0"><div>
-      <h3>👤 ${esc(s.nama)}</h3><p>Kelas ${s.kelas} • NIS ${s.nis}</p></div>
-      <button class="btn btn-ghost btn-sm" data-act="ganti">Ganti Siswa</button></div>
-    <div class="mini">
-      <div><small>Saldo Kantin</small><b>${fmtRp(ev.saldo)}</b></div>
-      <div><small>Terpakai Hari Ini</small><b>${fmtRp(ev.used)} / ${fmtRp(ev.limit)}</b></div>
-      <div><small>Sisa Limit</small><b>${fmtRp(ev.sisaLimit)}</b></div>
-    </div>
-    ${cartTable(false)}
-    <div class="list-item"><span style="font-weight:700">Total Belanja</span><b style="font-size:20px;color:var(--primary)">${fmtRp(total)}</b></div>
-    <div class="row-form">
-      <div class="field"><label>Metode Pembayaran</label>
-        <select id="selMetode">
-          <option value="Saldo" ${!cashMode ? 'selected' : ''}>Saldo kantin</option>
-          <option value="Cash" ${cashMode ? 'selected' : ''}>Tunai (cash)</option>
-        </select></div>
-      ${cashMode ? `<div class="field"><label>Uang Diterima (Rp)</label>
-        <input id="inDiterima" type="number" min="0" step="500" value="${kasir.diterima || ''}" placeholder="${total}"></div>` : ''}
-    </div>
-    ${cashMode ? `<div class="list-item"><span>Kembalian</span><b id="kembalian">${kasir.diterima >= total ? fmtRp(kasir.diterima - total) : 'Masukkan uang diterima'}</b></div>` : ''}
-    ${ev.ok
-      ? `<div class="alert ok"><b>✅ Transaksi valid.</b> ${cashMode
-          ? 'Pembayaran cash tetap dihitung dalam limit harian.'
-          : 'Sisa saldo setelah belanja: <b>' + fmtRp(ev.saldo - total) + '</b>.'}</div>`
-      : `<div class="alert err"><b>⛔ Transaksi DITOLAK.</b> ${esc(ev.msg)}<br>Batalkan item atau ubah daftar belanja.</div>`}
-    <div class="actions">
-      <button class="btn btn-primary" id="btnProses" data-act="proses" style="flex:1" ${bisaProses ? '' : 'disabled'}>
-        ${cashMode ? '💵 Proses Pembayaran Cash' : '💳 Proses dengan Saldo'}</button>
-      ${!ev.ok && ev.kode === 'saldo' ? '<button class="btn btn-gold" data-act="cash">💵 Bayar Cash</button>' : ''}
-      <button class="btn btn-ghost" data-act="back">← Ubah / Batalkan Item</button>
-      <button class="btn btn-danger" data-act="cancelAll">Batalkan Semua</button>
-    </div></div>`;
-}
-
-/* =========================================================
-   8. DASHBOARD GURU — SCAN QR ABSENSI PER JAM PELAJARAN
-   Data: tanggal, jam pelajaran, mapel, guru, waktu scan, siswa
-   ========================================================= */
-const guruScan = () => getGuru(currentUser.ref) || DB.guru[0];
-
-function viewScanAbsen() {
-  const st = state.scan;
-  return `
-  <div class="card" style="margin-bottom:16px">
-    <div class="row-form">
-      <div class="field"><label>Tanggal</label><input type="date" value="${today()}" disabled></div>
-      <div class="field"><label>Kelas</label>
-        <select id="scKelas">${kelasList().map(k => `<option ${k === st.kelas ? 'selected' : ''}>${k}</option>`).join('')}</select></div>
-      <div class="field"><label>Jam Pelajaran</label>
-        <select id="scJam">${JAM.map(j => `<option value="${j.n}" ${j.n === st.jam ? 'selected' : ''}>Jam ke-${j.n} (${j.t})</option>`).join('')}</select></div>
-      <div class="field"><label>Mata Pelajaran</label>
-        <select id="scMapel">${MAPEL.map(m => `<option ${m === st.mapel ? 'selected' : ''}>${esc(m)}</option>`).join('')}</select></div>
-      <div class="field"><label>Guru</label><input value="${esc(guruScan().nama)}" disabled></div>
-    </div>
-  </div>
-
-  <div class="two-col">
-    <div class="card">
-      <div class="card-head"><div><h3>Scan QR Siswa</h3><p>Setiap siswa dipindai sekali per jam pelajaran</p></div></div>
-      <div class="cam-box" id="scCam">
-        <video id="scVideo" playsinline muted></video>
-        <div class="cam-ph">📷 Kamera nonaktif<br>Klik “Aktifkan Kamera”, gunakan scanner barcode, atau ketik NIS di bawah</div>
-      </div>
-      <button class="btn btn-ghost w100" id="scBtnCam" style="margin-top:10px">📷 Aktifkan Kamera</button>
-      <form class="manual-form" id="scForm" style="margin-top:10px">
-        <input id="scInput" autocomplete="off" placeholder="NIS / kode QR siswa lalu Enter">
-        <button class="btn btn-primary" type="submit">OK</button>
-      </form>
-      <div id="scFeedback" style="margin-top:12px"></div>
-    </div>
-    <div class="card" id="scList"></div>
-  </div>`;
-}
-
-function bindScanAbsen() {
-  $('#scKelas').addEventListener('change', e => { state.scan.kelas = e.target.value; setScFeedback(); renderScList(); });
-  $('#scJam').addEventListener('change', e => { state.scan.jam = Number(e.target.value); setScFeedback(); renderScList(); });
-  $('#scMapel').addEventListener('change', e => { state.scan.mapel = e.target.value; renderScList(); });
-  $('#scBtnCam').addEventListener('click', e => camToggle(e.currentTarget, $('#scVideo'), $('#scCam'), c => onAbsenScan(c)));
-  $('#scForm').addEventListener('submit', e => {
-    e.preventDefault();
-    const v = $('#scInput').value; $('#scInput').value = '';
-    onAbsenScan(v); $('#scInput').focus();
-  });
-  $('#scList').addEventListener('click', e => {
-    const b = e.target.closest('[data-demo]'); if (b) onAbsenScan(b.dataset.demo);
-  });
-  renderScList();
-}
-
-function setScFeedback(type, html) {
-  const el = $('#scFeedback'); if (!el) return;
-  el.innerHTML = type ? `<div class="alert ${type}">${html}</div>` : '';
-}
-
-function onAbsenScan(raw) {
-  raw = String(raw || '').trim(); if (!raw) return;
-  if (kindOf(raw) === 'barang') { setScFeedback('err', 'Itu QR barang kantin, bukan QR siswa.'); return; }
-  const s = parseSiswa(raw);
-  if (!s) { setScFeedback('err', 'QR tidak dikenali: ' + esc(raw)); return; }
-  const st = state.scan, t = today();
-  if (s.kelas !== st.kelas) {
-    setScFeedback('err', `<b>${esc(s.nama)}</b> terdaftar di kelas ${s.kelas}, bukan kelas ${st.kelas}.`); return;
-  }
-  const dup = DB.absensiMapel.find(a => a.tanggal === t && a.jam === st.jam && a.siswaId === s.id);
-  if (dup) {
-    setScFeedback('err', `⛔ Absensi ganda ditolak: <b>${esc(s.nama)}</b> sudah tercatat pada jam ke-${st.jam} (${esc(dup.mapel)}) pukul ${dup.waktuScan}.`);
-    return;
-  }
-  const waktuScan = nowHMS();
-  DB.absensiMapel.push({
-    id: uid(), tanggal: t, jam: st.jam, mapel: st.mapel, guruId: guruScan().id,
-    kelas: st.kelas, siswaId: s.id, waktuScan,
-  });
-  save();
-  setScFeedback('ok', `✅ <b>${esc(s.nama)}</b> hadir — jam ke-${st.jam}, ${esc(st.mapel)}, pukul ${waktuScan}.`);
-  renderScList();
-}
-
-function renderScList() {
-  const el = $('#scList'); if (!el) return;
-  const st = state.scan, t = today();
-  const murid = DB.siswa.filter(s => s.kelas === st.kelas);
-  const recs = DB.absensiMapel.filter(a => a.tanggal === t && a.jam === st.jam && a.kelas === st.kelas);
-  const hadir = murid.filter(s => recs.some(r => r.siswaId === s.id)).length;
-  el.innerHTML = `
-    <div class="card-head"><div><h3>Kehadiran Jam ke-${st.jam} — Kelas ${st.kelas}</h3>
-      <p>${esc(st.mapel)} • ${hadir} dari ${murid.length} siswa sudah dipindai</p></div>
-      <div style="min-width:130px"><div class="progress"><i style="width:${murid.length ? Math.round(hadir / murid.length * 100) : 0}%"></i></div></div></div>
-    <div class="tbl-wrap"><table>
-      <thead><tr><th>Siswa</th><th>Status</th><th>Waktu Scan</th><th class="no-print"></th></tr></thead>
-      <tbody>${murid.map(s => {
-        const r = recs.find(x => x.siswaId === s.id);
-        return `<tr><td><b>${esc(s.nama)}</b><div style="font-size:11.5px;color:var(--muted)">${s.nis}</div></td>
-          <td>${r ? '<span class="badge b-hadir">Hadir</span>' : '<span class="badge b-late">Belum scan</span>'}
-            ${r && r.mapel !== st.mapel ? `<div style="font-size:11px;color:var(--muted);margin-top:3px">${esc(r.mapel)}</div>` : ''}</td>
-          <td>${r ? r.waktuScan : '-'}</td>
-          <td>${r ? '' : `<button class="btn btn-sm btn-ghost" data-demo="${esc(qrSiswaText(s))}">Demo scan</button>`}</td></tr>`;
-      }).join('') || '<tr><td colspan="4"><div class="empty">Tidak ada siswa di kelas ini</div></td></tr>'}</tbody>
-    </table></div>`;
-}
-
-/* =========================================================
-   9. REKAP KEHADIRAN (per siswa & per mata pelajaran)
-   ========================================================= */
-function viewRekap() {
-  const wali = currentUser.role === 'wali';
-  const child = wali ? getSiswa(currentUser.ref) : null;
-  const R = state.rekap;
-  if (wali) R.kelas = child.kelas;
-
-  const murid = wali ? [child] : DB.siswa.filter(s => s.kelas === R.kelas);
-  const kelasSize = DB.siswa.filter(s => s.kelas === R.kelas).length;
-  const all = DB.absensiMapel.filter(r => r.kelas === R.kelas && r.tanggal >= R.dari && r.tanggal <= R.sampai
-    && (R.mapel === 'Semua' || r.mapel === R.mapel));
-  const data = wali ? all.filter(r => r.siswaId === child.id) : all;
-
-  // Jumlah sesi = kombinasi unik tanggal + jam per mapel (untuk kelas tsb)
-  const sesi = {};
-  all.forEach(r => { (sesi[r.mapel] ||= new Set()).add(r.tanggal + '|' + r.jam); });
-  const mapels = Object.keys(sesi).sort();
-  const totalSesi = mapels.reduce((a, m) => a + sesi[m].size, 0);
-
-  const rowsSiswa = murid.map(s => {
-    const mine = data.filter(r => r.siswaId === s.id);
-    const cells = mapels.map(m => {
-      const c = mine.filter(r => r.mapel === m).length;
-      return `<td>${c}<span style="color:var(--muted)">/${sesi[m].size}</span></td>`;
-    }).join('');
-    const pct = totalSesi ? Math.round(mine.length / totalSesi * 100) : 0;
-    return `<tr><td><b>${esc(s.nama)}</b><div style="font-size:11.5px;color:var(--muted)">${s.nis}</div></td>${cells}
-      <td><b>${mine.length}/${totalSesi}</b></td>
-      <td><div style="display:flex;align-items:center;gap:8px"><div class="progress"><i style="width:${pct}%"></i></div><b style="font-size:12px">${pct}%</b></div></td></tr>`;
-  }).join('');
-
-  const rowsMapel = mapels.map(m => {
-    const hadir = data.filter(r => r.mapel === m).length;
-    const n = sesi[m].size;
-    const denom = n * (wali ? 1 : kelasSize);
-    const pct = denom ? Math.round(hadir / denom * 100) : 0;
-    return `<tr><td><b>${esc(m)}</b></td><td>${n}</td><td>${hadir}</td>
-      <td>${wali ? (hadir + ' dari ' + n + ' sesi') : (n ? (hadir / n).toFixed(1) : 0) + ' siswa/sesi'}</td>
-      <td><div style="display:flex;align-items:center;gap:8px"><div class="progress"><i style="width:${pct}%"></i></div><b style="font-size:12px">${pct}%</b></div></td></tr>`;
-  }).join('');
-
-  const detail = [...data].sort((a, b) => (b.tanggal + String(b.jam).padStart(2, '0') + b.waktuScan)
-    .localeCompare(a.tanggal + String(a.jam).padStart(2, '0') + a.waktuScan)).slice(0, 50);
-
-  return `
-  <div class="card" style="margin-bottom:16px">
-    <div class="row-form">
-      ${wali ? '' : `<div class="field"><label>Kelas</label>
-        <select id="rkKelas">${kelasList().map(k => `<option ${k === R.kelas ? 'selected' : ''}>${k}</option>`).join('')}</select></div>`}
-      <div class="field"><label>Mata Pelajaran</label>
-        <select id="rkMapel">${['Semua', ...MAPEL].map(m => `<option ${m === R.mapel ? 'selected' : ''}>${esc(m)}</option>`).join('')}</select></div>
-      <div class="field"><label>Dari Tanggal</label><input type="date" id="rkDari" value="${R.dari}"></div>
-      <div class="field"><label>Sampai Tanggal</label><input type="date" id="rkSampai" value="${R.sampai}"></div>
-      <div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="rkTampil">🔄 Tampilkan</button></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-head"><div><h3>Rekap per Siswa</h3>
-      <p>Kelas ${R.kelas} • ${fmtTgl(R.dari)} s.d. ${fmtTgl(R.sampai)} • format: hadir/jumlah sesi</p></div></div>
-    ${mapels.length ? `<div class="tbl-wrap"><table>
-      <thead><tr><th>Siswa</th>${mapels.map(m => `<th>${esc(m)}</th>`).join('')}<th>Total</th><th>% Hadir</th></tr></thead>
-      <tbody>${rowsSiswa}</tbody></table></div>`
-      : '<div class="empty"><span class="ico">📊</span>Belum ada data scan pada filter ini</div>'}
-  </div>
-
-  <div class="card">
-    <div class="card-head"><div><h3>Rekap per Mata Pelajaran</h3><p>Ringkasan sesi dan tingkat kehadiran</p></div></div>
-    ${mapels.length ? `<div class="tbl-wrap"><table>
-      <thead><tr><th>Mata Pelajaran</th><th>Jumlah Sesi</th><th>Total Kehadiran</th><th>Rata-rata</th><th>% Kehadiran</th></tr></thead>
-      <tbody>${rowsMapel}</tbody></table></div>`
-      : '<div class="empty"><span class="ico">📚</span>Belum ada data</div>'}
-  </div>
-
-  <div class="card">
-    <div class="card-head"><div><h3>Log Scan Absensi</h3><p>${data.length} catatan (menampilkan 50 terbaru)</p></div></div>
-    <div class="tbl-wrap"><table>
-      <thead><tr><th>Tanggal</th><th>Jam Ke</th><th>Mata Pelajaran</th><th>Guru</th><th>Waktu Scan</th><th>Siswa</th></tr></thead>
-      <tbody>${detail.map(r => `<tr>
-        <td>${fmtTgl(r.tanggal)}</td><td>${r.jam}</td><td>${esc(r.mapel)}</td>
-        <td>${esc(getGuru(r.guruId)?.nama || '-')}</td><td>${r.waktuScan}</td>
-        <td><b>${esc(getSiswa(r.siswaId)?.nama || '-')}</b></td></tr>`).join('')
-        || '<tr><td colspan="6"><div class="empty">Belum ada data</div></td></tr>'}</tbody></table></div>
-  </div>`;
-}
-
-function bindRekap() {
-  $('#rkTampil').addEventListener('click', () => {
-    const k = $('#rkKelas'); if (k) state.rekap.kelas = k.value;
-    state.rekap.mapel = $('#rkMapel').value;
-    state.rekap.dari = $('#rkDari').value || dayStr(-30);
-    state.rekap.sampai = $('#rkSampai').value || today();
-    renderView();
-  });
-}
-
-/* =========================================================
-   10. CETAK QR CODE SISWA — A4, TEPAT 8 KARTU PER HALAMAN
-   ========================================================= */
-function qrCardHTML(s) {
-  return `<div class="qr-card">
-    <div class="qc-head"><div class="lg">🕌</div>
-      <div><b>SD Program Unggulan Assunniyyah</b><span>Kartu QR Siswa • Pasirian, Lumajang</span></div></div>
-    <div class="qc-body">
-      <div class="qc-qr">${qrSvg(qrSiswaText(s))}</div>
-      <div class="qc-info">
-        <div class="nm">${esc(s.nama)}</div>
-        <div class="rw"><small>NIS</small>${esc(s.nis)}</div>
-        <div class="rw"><small>Kelas</small>${esc(s.kelas)}</div>
-      </div>
-    </div>
-    <div class="qc-foot">Tunjukkan kartu ini saat absensi kelas & transaksi kantin</div>
-  </div>`;
-}
-
-function viewQrCetak() {
-  const kelas = state.qrKelas;
-  const list = DB.siswa.filter(s => kelas === 'Semua' || s.kelas === kelas);
-  const pages = [];
-  for (let i = 0; i < list.length; i += 8) pages.push(list.slice(i, i + 8));
-
-  return `
-    <div class="card no-print" style="margin-bottom:16px">
-      <div class="row-form">
-        <div class="field"><label>Cetak untuk</label>
-          <select id="qrKelas">${['Semua', ...kelasList()].map(k => `<option ${k === kelas ? 'selected' : ''}>${k}</option>`).join('')}</select></div>
-        <div class="field"><label>&nbsp;</label>
-          <button class="btn btn-primary" id="btnCetak" ${list.length ? '' : 'disabled'}>🖨️ Cetak / Simpan PDF</button></div>
-      </div>
-      <p style="font-size:12px;color:var(--muted);margin-top:12px;line-height:1.6">
-        ${list.length} siswa • ${pages.length} halaman A4 • 8 kartu per halaman (2 kolom × 4 baris, masing-masing 95 × 69 mm).
-        Pada dialog cetak pilih kertas <b>A4</b>, skala <b>100%</b> (jangan “Fit to page”), lalu potong mengikuti garis putus-putus.
-      </p>
-    </div>
-    <div class="qr-pages">
-      ${pages.map(p => `<div class="qr-page">${p.map(qrCardHTML).join('')}${'<div class="qr-card blank"></div>'.repeat(8 - p.length)}</div>`).join('')
-        || '<div class="empty"><span class="ico">🔳</span>Tidak ada siswa</div>'}
-    </div>`;
-}
-
-function bindQrCetak() {
-  $('#qrKelas').addEventListener('change', e => { state.qrKelas = e.target.value; renderView(); });
-  const b = $('#btnCetak'); if (b) b.addEventListener('click', () => window.print());
-}
-
-/* =========================================================
-   11. QR BARANG KANTIN (label untuk dipindai kasir)
-   ========================================================= */
-function viewQrBarang() {
-  return `
-    <div class="card no-print" style="margin-bottom:16px">
-      <div class="card-head" style="margin-bottom:0"><div>
-        <h3>Label QR Barang</h3>
-        <p>${DB.produk.length} barang • cetak lalu tempel pada kemasan/rak. Kasir memindai label ini pada langkah pertama.</p></div>
-        <button class="btn btn-primary" id="btnCetakBarang">🖨️ Cetak Label</button></div>
-    </div>
-    <div class="lbl-grid">
-      ${DB.produk.map(p => `<div class="lbl"><div class="q">${qrSvg(qrBarangText(p))}</div>
-        <b>${esc(p.nama)}</b><span>${fmtRp(p.harga)}</span><code>${esc(p.kode)}</code></div>`).join('')}
-    </div>`;
-}
-function bindQrBarang() { $('#btnCetakBarang').addEventListener('click', () => window.print()); }
-
-/* =========================================================
-   START
-   ========================================================= */
-render();
 </script>
 </body>
 </html>
