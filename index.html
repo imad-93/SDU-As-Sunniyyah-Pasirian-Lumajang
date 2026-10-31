@@ -5,1129 +5,533 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SD Program Unggulan Assunniyyah</title>
   <style>
-    :root {
-      --primary: #0b6b3a;
-      --primary-dark: #084d2a;
-      --primary-soft: #eaf6ef;
-      --gold: #d9a419;
-      --bg: #f4f7f4;
-      --white: #ffffff;
-      --text: #173127;
-      --muted: #62766c;
-      --line: #dfe7e2;
-      --danger: #c0392b;
-      --warn: #df8a0d;
-      --success: #1d7a4b;
-      --shadow: 0 10px 24px rgba(11, 107, 58, 0.12);
-      --radius: 16px;
+    :root{
+      --primary:#0b6b3a; --primary-2:#128a4c; --primary-soft:#eaf6ef;
+      --gold:#d9a419; --bg:#f4f7f4; --white:#ffffff; --text:#173127;
+      --muted:#5f7269; --line:#dfe7e2; --danger:#c0392b; --warn:#df8a0d;
+      --success:#1d7a4b; --shadow:0 10px 24px rgba(11,107,58,.12); --radius:16px;
     }
+    *{box-sizing:border-box} html,body{margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text)}
+    body{min-height:100vh} button,input,select,textarea{font:inherit} .hidden{display:none!important}
+    .login-shell{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 15% 20%, rgba(18,138,76,.28), transparent 42%),radial-gradient(circle at 85% 80%, rgba(217,164,25,.18), transparent 38%),linear-gradient(140deg, var(--primary), #073d24)}
+    .login-card{width:min(100%,430px);background:white;border-radius:20px;padding:30px 28px;box-shadow:0 30px 70px rgba(0,0,0,.28)}
+    .login-logo{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;font-size:34px;background:linear-gradient(135deg, var(--primary), var(--primary-2));margin:0 auto 14px;color:#fff;box-shadow:0 10px 24px rgba(11,107,58,.38)}
+    h1{margin:0;font-size:1.2rem;text-align:center;color:var(--primary)}
+    .subtitle{margin:8px 0 18px;text-align:center;color:var(--muted);font-size:.8rem;line-height:1.5}
+    label{display:block;margin:12px 0 6px;font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+    input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;background:#fbfdfc;color:var(--text);outline:none;transition:.18s ease}
+    input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(18,138,76,.12)}
+    .btn{border:0;border-radius:10px;cursor:pointer;padding:10px 16px;font-weight:700;transition:.15s ease}
+    .btn-primary{background:var(--primary);color:white}.btn-primary:hover{background:#084d2a}
+    .btn-ghost{background:white;border:1.5px solid var(--line);color:var(--text)}.btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
+    .btn-danger{background:#fdeceb;color:var(--danger);border:1.5px solid #f7d4d1}.btn-gold{background:var(--gold);color:#3d2e00}.btn-sm{padding:7px 10px;font-size:.75rem;border-radius:8px}.full{width:100%}
+    .demo-box{background:var(--primary-soft);border:1px solid rgba(11,107,58,.08);border-radius:12px;padding:12px 14px;margin-top:18px}
+    .demo-box strong{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--primary);margin-bottom:6px}
+    .demo-row{display:flex;justify-content:space-between;font-size:.75rem;gap:12px;color:var(--text);padding:5px 0}.demo-row code{background:white;color:var(--primary);font-weight:700;border-radius:6px;padding:2px 7px}.demo-note{margin-top:12px;text-align:center;color:var(--muted);font-size:.72rem}
 
-    * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; font-family: "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text); }
-    body { min-height: 100vh; }
-    button, input, select { font: inherit; }
-    a { color: inherit; text-decoration: none; }
-    .hidden { display: none !important; }
-
-    .login-shell {
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-      background: radial-gradient(circle at 15% 20%, rgba(18,138,76,0.26), transparent 42%),
-                  radial-gradient(circle at 85% 80%, rgba(217,164,25,0.18), transparent 38%),
-                  linear-gradient(140deg, var(--primary), var(--primary-dark));
-    }
-
-    .login-card {
-      width: min(100%, 430px);
-      background: #fff;
-      border-radius: 20px;
-      padding: 30px 28px;
-      box-shadow: 0 30px 70px rgba(0,0,0,0.28);
-    }
-
-    .login-logo {
-      width: 72px; height: 72px; border-radius: 50%;
-      display: grid; place-items: center; font-size: 34px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      margin: 0 auto 14px; color: #fff;
-      box-shadow: 0 10px 24px rgba(11,107,58,0.38);
-    }
-
-    h1 { margin: 0; font-size: 1.2rem; text-align: center; color: var(--primary); }
-    .subtitle { margin: 8px 0 18px; text-align: center; color: var(--muted); font-size: 0.8rem; line-height: 1.5; }
-
-    label { display: block; margin: 12px 0 6px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
-    input, select {
-      width: 100%; border: 1.5px solid var(--line); border-radius: 10px; padding: 11px 12px; background: #fbfdfc; color: var(--text);
-      outline: none; transition: 0.18s ease;
-    }
-    input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(18,138,76,0.12); }
-
-    .btn { border: 0; border-radius: 10px; cursor: pointer; padding: 10px 16px; font-weight: 700; transition: 0.15s ease; }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:hover { background: var(--primary-dark); }
-    .btn-ghost { background: white; border: 1.5px solid var(--line); color: var(--text); }
-    .btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
-    .btn-danger { background: #fdeceb; color: var(--danger); border: 1.5px solid #f7d4d1; }
-    .btn-gold { background: var(--gold); color: #3d2e00; }
-    .btn-sm { padding: 7px 10px; font-size: 0.75rem; border-radius: 8px; }
-    .full { width: 100%; }
-
-    .demo-box {
-      background: var(--primary-soft); border: 1px solid rgba(11,107,58,0.08); border-radius: 12px; padding: 12px 14px; margin-top: 18px;
-    }
-    .demo-box strong { display: block; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); margin-bottom: 6px; }
-    .demo-row { display: flex; justify-content: space-between; font-size: 0.75rem; gap: 12px; color: var(--text); padding: 5px 0; }
-    .demo-row code { background: white; color: var(--primary); font-weight: 700; border-radius: 6px; padding: 2px 7px; }
-    .demo-note { margin-top: 12px; text-align: center; color: var(--muted); font-size: 0.72rem; }
-
-    .app {
-      display: flex; min-height: 100vh;
-    }
-    .sidebar {
-      width: 250px; background: linear-gradient(180deg, var(--primary), var(--primary-dark)); color: #f2f9f4;
-      padding: 18px 14px; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh;
-    }
-    .brand { display: flex; gap: 10px; align-items: center; padding: 4px 6px 16px; border-bottom: 1px solid rgba(255,255,255,0.18); margin-bottom: 12px; }
-    .brand-mark { width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,0.12); display: grid; place-items: center; }
-    .brand-title { font-size: 0.82rem; font-weight: 800; }
-    .brand-sub { font-size: 0.68rem; opacity: 0.8; }
-    .nav { display: flex; flex-direction: column; gap: 5px; flex: 1; }
-    .nav-btn {
-      width: 100%; display: flex; align-items: center; gap: 10px; text-align: left; border: 0; border-radius: 10px; background: transparent; color: inherit; padding: 10px 12px; cursor: pointer; font-weight: 600; font-size: 0.8rem;
-    }
-    .nav-btn:hover { background: rgba(255,255,255,0.08); }
-    .nav-btn.active { background: white; color: var(--primary); }
-    .nav-icon { width: 18px; text-align: center; }
-    .sidebar-bottom { border-top: 1px solid rgba(255,255,255,0.18); padding-top: 12px; margin-top: 8px; }
-
-    .main { flex: 1; min-width: 0; }
-    .topbar {
-      background: rgba(255,255,255,0.96); border-bottom: 1px solid var(--line); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center;
-      position: sticky; top: 0; z-index: 10; backdrop-filter: blur(6px);
-    }
-    .topbar h2 { margin: 0; color: var(--primary); font-size: 1rem; }
-    .topbar .sub { margin-top: 2px; color: var(--muted); font-size: 0.72rem; }
-    .userbox { display: flex; align-items: center; gap: 10px; }
-    .avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--primary-soft); color: var(--primary); font-weight: 800; display: grid; place-items: center; }
-    .user-meta { display: flex; flex-direction: column; }
-    .user-name { font-size: 0.78rem; font-weight: 700; }
-    .user-role { font-size: 0.64rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
-    .content-shell { padding: 22px 24px 40px; }
-
-    .section-grid { display: grid; gap: 16px; }
-    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-
-    .stat, .card {
-      background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
-    }
-    .stat { padding: 16px 18px; position: relative; overflow: hidden; }
-    .stat::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--primary); }
-    .stat.gold::before { background: var(--gold); }
-    .stat.warn::before { background: var(--warn); }
-    .stat.danger::before { background: var(--danger); }
-    .stat-label { font-size: 0.68rem; font-weight: 800; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
-    .stat-value { margin-top: 8px; font-size: clamp(1.5rem, 2vw, 2rem); font-weight: 800; letter-spacing: -0.04em; }
-    .stat-hint { margin-top: 6px; font-size: 0.7rem; color: var(--muted); }
-
-    .card { padding: 18px 18px 12px; }
-    .card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
-    .card-head h3 { margin: 0; color: var(--primary); font-size: 0.98rem; }
-    .card-head p { margin: 3px 0 0; color: var(--muted); font-size: 0.72rem; }
-
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 10px 12px; border-bottom: 1px solid #edf1ef; text-align: left; }
-    th { background: #f5f9f6; color: #375446; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; }
-    td { font-size: 0.77rem; }
-    tbody tr:hover { background: #fafdfb; }
-
-    .table-wrap { overflow-x: auto; }
-    .pill { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; }
-    .pill.hadir { background: #e7f7ee; color: var(--success); }
-    .pill.sakit { background: #fff0d5; color: #a36200; }
-    .pill.izin { background: #eaf0ff; color: #2b5bbd; }
-    .pill.alpa { background: #fdeceb; color: var(--danger); }
-    .pill.late { background: #fff0d5; color: #9d6800; }
-    .pill.lunas { background: #e7f7ee; color: var(--success); }
-    .pill.belum { background: #fdeceb; color: var(--danger); }
-
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; align-items: end; }
-    .field { display: flex; flex-direction: column; gap: 6px; }
-    .field label { margin: 0; }
-
-    .list { display: grid; gap: 10px; }
-    .list-item { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid #edf1ef; padding-bottom: 8px; }
-    .list-item:last-child { border-bottom: none; padding-bottom: 0; }
-    .list-title { font-weight: 700; }
-    .list-meta { color: var(--muted); font-size: 0.7rem; margin-top: 3px; }
-    .empty { text-align: center; color: var(--muted); padding: 30px 12px; font-size: 0.78rem; }
-
-    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .space-between { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 32px; padding: 4px 8px; border-radius: 999px; font-size: 0.68rem; font-weight: 800; background: var(--primary-soft); color: var(--primary); }
-    .qr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
-    .qr-card-box {
-      border: 1px dashed #9cb0a4; border-radius: 12px; padding: 12px; background: white; text-align: center;
-    }
-    .qr-box { width: 110px; height: 110px; margin: 0 auto 8px; display: grid; place-items: center; }
-    .qr-box svg { width: 100%; height: 100%; display: block; }
-    .qr-name { font-weight: 700; font-size: 0.8rem; }
-    .qr-code { color: var(--muted); font-size: 0.7rem; }
-
-    .toast {
-      position: fixed; right: 18px; bottom: 18px; background: var(--primary); color: white; border-radius: 12px; box-shadow: 0 12px 28px rgba(11,107,58,0.25);
-      padding: 11px 16px; font-size: 0.8rem; font-weight: 700; z-index: 999; animation: fadeUp 0.25s ease;
-    }
-    .toast.err { background: var(--danger); }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px);} to { opacity: 1; transform: translateY(0);} }
-
-    @media (max-width: 900px) {
-      .app { display: block; }
-      .sidebar { width: 100%; height: auto; position: static; padding: 12px; }
-      .nav { flex-direction: row; flex-wrap: wrap; }
-      .nav-btn { width: auto; flex: 1 1 auto; }
-      .topbar { padding: 12px 14px; }
-      .content-shell { padding: 16px 14px 26px; }
-      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .grid-2 { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 560px) {
-      .grid-4 { grid-template-columns: 1fr; }
-      .login-card { padding: 24px 18px; }
-    }
+    .app{display:flex;min-height:100vh}.sidebar{width:250px;background:linear-gradient(180deg, var(--primary), #084d2a);color:#f2f9f4;padding:18px 14px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+    .brand{display:flex;gap:10px;align-items:center;padding:4px 6px 16px;border-bottom:1px solid rgba(255,255,255,.18);margin-bottom:12px}
+    .brand-mark{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.12);display:grid;place-items:center}
+    .brand-title{font-size:.82rem;font-weight:800}.brand-sub{font-size:.68rem;opacity:.8}
+    .nav{display:flex;flex-direction:column;gap:5px;flex:1}.nav-btn{width:100%;display:flex;align-items:center;gap:10px;text-align:left;border:0;border-radius:10px;background:transparent;color:inherit;padding:10px 12px;cursor:pointer;font-weight:600;font-size:.8rem}.nav-btn:hover{background:rgba(255,255,255,.08)}.nav-btn.active{background:white;color:var(--primary)}.nav-icon{width:18px;text-align:center}
+    .sidebar-bottom{border-top:1px solid rgba(255,255,255,.18);padding-top:12px;margin-top:8px}
+    .main{flex:1;min-width:0}.topbar{background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10;backdrop-filter:blur(6px)}
+    .topbar h2{margin:0;color:var(--primary);font-size:1rem}.topbar .sub{margin-top:2px;color:var(--muted);font-size:.72rem}
+    .userbox{display:flex;align-items:center;gap:10px}.avatar{width:38px;height:38px;border-radius:50%;background:var(--primary-soft);color:var(--primary);font-weight:800;display:grid;place-items:center}.user-meta{display:flex;flex-direction:column}.user-name{font-size:.78rem;font-weight:700}.user-role{font-size:.64rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .content-shell{padding:22px 24px 40px}.section-grid{display:grid;gap:16px}.grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .stat,.card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .stat{padding:16px 18px;position:relative;overflow:hidden}.stat::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--primary)}.stat.gold::before{background:var(--gold)}.stat.warn::before{background:var(--warn)}.stat.danger::before{background:var(--danger)}
+    .stat-label{font-size:.68rem;font-weight:800;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}.stat-value{margin-top:8px;font-size:clamp(1.5rem,2vw,2rem);font-weight:800;letter-spacing:-.04em}.stat-hint{margin-top:6px;font-size:.7rem;color:var(--muted)}
+    .card{padding:18px 18px 12px}.card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.card-head h3{margin:0;color:var(--primary);font-size:.98rem}.card-head p{margin:3px 0 0;color:var(--muted);font-size:.72rem}
+    table{width:100%;border-collapse:collapse}th,td{padding:10px 12px;border-bottom:1px solid #edf1ef;text-align:left}th{background:#f5f9f6;color:#375446;font-size:.68rem;text-transform:uppercase;letter-spacing:.06em}td{font-size:.77rem}tbody tr:hover{background:#fafdfb}.table-wrap{overflow-x:auto}
+    .pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:.7rem;font-weight:700}.pill.hadir{background:#e7f7ee;color:var(--success)}.pill.sakit{background:#fff0d5;color:#a36200}.pill.izin{background:#eaf0ff;color:#2b5bbd}.pill.alpa{background:#fdeceb;color:var(--danger)}.pill.late{background:#fff0d5;color:#9d6800}.pill.lunas{background:#e7f7ee;color:var(--success)}.pill.belum{background:#fdeceb;color:var(--danger)}
+    .field{display:flex;flex-direction:column;gap:6px}.field label{margin:0}
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;align-items:end}
+    .list{display:grid;gap:10px}.list-item{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #edf1ef;padding-bottom:8px}.list-item:last-child{border-bottom:none;padding-bottom:0}.list-title{font-weight:700}.list-meta{color:var(--muted);font-size:.7rem;margin-top:3px}.empty{text-align:center;color:var(--muted);padding:30px 12px;font-size:.78rem}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.space-between{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.badge{display:inline-flex;align-items:center;justify-content:center;min-width:32px;padding:4px 8px;border-radius:999px;font-size:.68rem;font-weight:800;background:var(--primary-soft);color:var(--primary)}
+    .qr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}.qr-card-box{border:1px dashed #9cb0a4;border-radius:12px;padding:12px;background:white;text-align:center}.qr-box{width:110px;height:110px;margin:0 auto 8px;display:grid;place-items:center}.qr-box svg{width:100%;height:100%;display:block}.qr-name{font-weight:700;font-size:.8rem}.qr-code{color:var(--muted);font-size:.7rem}
+    .toast{position:fixed;right:18px;bottom:18px;background:var(--primary);color:white;border-radius:12px;box-shadow:0 12px 28px rgba(11,107,58,.25);padding:11px 16px;font-size:.8rem;font-weight:700;z-index:999;animation:fadeUp .25s ease}.toast.err{background:var(--danger)} @keyframes fadeUp{from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)}}
+    @media (max-width:900px){.app{display:block}.sidebar{width:100%;height:auto;position:static;padding:12px}.nav{flex-direction:row;flex-wrap:wrap}.nav-btn{width:auto;flex:1 1 auto}.topbar{padding:12px 14px}.content-shell{padding:16px 14px 26px}.grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-2{grid-template-columns:1fr}} @media (max-width:560px){.grid-4{grid-template-columns:1fr}.login-card{padding:24px 18px}}
   </style>
 </head>
 <body>
   <div id="app"></div>
-
   <script>
-    const STORAGE_KEY = 'assunniyyah_demo_db_v2';
-    const SESSION_KEY = 'assunniyyah_demo_session';
+    const STORAGE_KEY='assunniyyah_demo_db_v3';
+    const SESSION_KEY='assunniyyah_demo_session';
+    const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+    const uid=()=>`${Date.now().toString(36)}${Math.random().toString(36).slice(2,7)}`;
+    const pad=n=>String(n).padStart(2,'0');
+    const today=()=>{const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;};
+    const dayBack=n=>{const d=new Date(); d.setDate(d.getDate()+n); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;};
+    const money=n=>'Rp '+Number(n||0).toLocaleString('id-ID');
+    const fmtDate=s=>{if(!s)return'-'; const d=new Date(`${s}T00:00:00`); return d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});};
+    const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+    const safeParse=(raw,fallback)=>{try{return raw?JSON.parse(raw):fallback}catch{return fallback;}};
+    const statusClass=(status)=>{const map={Hadir:'hadir',Sakit:'sakit',Izin:'izin',Alpa:'alpa',Terlambat:'late',Lunas:'lunas','Belum Lunas':'belum'}; return map[status]||'hadir';};
 
-    const $ = (sel) => document.querySelector(sel);
-    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
-    const uid = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
-    const pad = (n) => String(n).padStart(2, '0');
-    const today = () => {
-      const d = new Date();
-      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-    };
-    const dayBack = (days) => {
-      const d = new Date(); d.setDate(d.getDate() + days);
-      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-    };
-    const money = (n) => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
-    const fmtDate = (s) => {
-      if (!s) return '-';
-      const d = new Date(`${s}T00:00:00`);
-      return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
-    };
-    const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
-
-    function safeParse(raw, fallback) {
-      try {
-        return raw ? JSON.parse(raw) : fallback;
-      } catch {
-        return fallback;
-      }
-    }
-
-    function normaliseDB(raw) {
-      const base = { 
-        siswa: [
-          { id: 's1', nis: '2425001', nama: 'Ahmad Fauzan', kelas: '1A', wali: 'Bapak Hasan' },
-          { id: 's2', nis: '2425002', nama: 'Aisyah Nur Fadhilah', kelas: '1A', wali: 'Bapak Rahman' },
-          { id: 's3', nis: '2425003', nama: 'Bilal Ramadhan', kelas: '1A', wali: 'Bapak Yusuf' },
-          { id: 's4', nis: '2425004', nama: 'Citra Aulia', kelas: '1A', wali: 'Bapak Ibrahim' },
-          { id: 's5', nis: '2425005', nama: 'Dimas Prayoga', kelas: '2A', wali: 'Bapak Soleh' },
-          { id: 's6', nis: '2425006', nama: 'Eka Putri Ramadhani', kelas: '2A', wali: 'Bapak Anwar' },
-          { id: 's7', nis: '2425007', nama: 'Farhan Maulana', kelas: '2A', wali: 'Bapak Ridwan' },
-          { id: 's8', nis: '2425008', nama: 'Gita Safira', kelas: '3A', wali: 'Bapak Zainal' },
-          { id: 's9', nis: '2425009', nama: 'Hafiz Alfarizi', kelas: '3A', wali: 'Bapak Munir' },
-          { id: 's10', nis: '2425010', nama: 'Indah Permata Sari', kelas: '3A', wali: 'Bapak Salim' },
-          { id: 's11', nis: '2425011', nama: 'Joko Prasetyo', kelas: '4A', wali: 'Bapak Sugeng' },
-          { id: 's12', nis: '2425012', nama: 'Kholifah Aulia', kelas: '4A', wali: 'Bapak Amir' },
+    function loadDb(){
+      const base={
+        siswa:[
+          {id:'s1',nis:'2425001',nama:'Ahmad Fauzan',kelas:'1A',ortu:'Bapak Hasan',kontak:'0812-0001',alamat:'Jl. Tegir RT 01 RW 02',foto:'',ttl:'2017-03-12'},
+          {id:'s2',nis:'2425002',nama:'Aisyah Nur Fadhilah',kelas:'1A',ortu:'Bapak Rahman',kontak:'0812-0002',alamat:'Jl. Merdeka',foto:'',ttl:'2017-03-15'},
+          {id:'s3',nis:'2425003',nama:'Bilal Ramadhan',kelas:'1A',ortu:'Bapak Yusuf',kontak:'0812-0003',alamat:'Jl. Mawar',foto:'',ttl:'2017-04-02'},
+          {id:'s4',nis:'2425004',nama:'Citra Aulia',kelas:'1A',ortu:'Bapak Ibrahim',kontak:'0812-0004',alamat:'Jl. Raya Pasirian',foto:'',ttl:'2017-02-18'},
+          {id:'s5',nis:'2425005',nama:'Dimas Prayoga',kelas:'2A',ortu:'Bapak Soleh',kontak:'0812-0005',alamat:'Jl. Nusa Indah',foto:'',ttl:'2016-07-07'},
         ],
-        guru: [
-          { id: 'g1', nama: 'Ustadzah Nur Aisyah', mapel: 'Guru Kelas 1A' },
-          { id: 'g2', nama: 'Ustadz Ahmad Fauzi', mapel: 'Guru Kelas 2A' },
-          { id: 'g3', nama: 'Ustadzah Siti Maryam', mapel: 'Guru Kelas 3A' },
-          { id: 'g4', nama: 'Ustadz Hasan Basri', mapel: 'Guru PAI' },
-          { id: 'g5', nama: 'Ustadzah Laila Kurnia', mapel: 'Guru Tahfidz' },
-          { id: 'g6', nama: 'Ustadz Rizal Hakim', mapel: 'Guru Olahraga' },
+        guru:[
+          {id:'g1',nama:'Ustadzah Nur Aisyah',mapel:'Guru Kelas 1A',kontak:'0813-1001',status:'Aktif'},
+          {id:'g2',nama:'Ustadz Ahmad Fauzi',mapel:'Guru Kelas 2A',kontak:'0813-1002',status:'Aktif'},
+          {id:'g3',nama:'Ustadzah Siti Maryam',mapel:'Guru Kelas 3A',kontak:'0813-1003',status:'Aktif'},
+          {id:'g4',nama:'Ustadz Hasan Basri',mapel:'Guru PAI',kontak:'0813-1004',status:'Aktif'},
+          {id:'g5',nama:'Ustadzah Laila Kurnia',mapel:'Guru Tahfidz',kontak:'0813-1005',status:'Aktif'}
         ],
-        users: [
-          { u: 'admin', p: 'admin123', role: 'admin', nama: 'Administrator Sekolah', ref: null },
-          { u: 'guru', p: 'guru123', role: 'guru', nama: 'Ustadzah Nur Aisyah', ref: 'g1' },
-          { u: 'wali', p: 'wali123', role: 'wali', nama: 'Bapak Hasan', ref: 's1' },
-          { u: 'kantin', p: 'kantin123', role: 'kantin', nama: 'Petugas Kantin', ref: null }
+        users:[
+          {id:'u1',u:'admin',p:'admin123',role:'admin',nama:'Administrator Sekolah',ref:null},
+          {id:'u2',u:'guru',p:'guru123',role:'guru',nama:'Ustadzah Nur Aisyah',ref:'g1'},
+          {id:'u3',u:'wali',p:'wali123',role:'wali',nama:'Bapak Hasan',ref:'s1'},
+          {id:'u4',u:'kantin',p:'kantin123',role:'kantin',nama:'Petugas Kantin',ref:null}
         ],
-        absensiSiswa: [],
-        absensiGuru: [],
-        pembayaran: [],
-        kantin: [],
-        capaian: [],
-        produk: [
-          { id: 'p1', kode: 'BRG-001', nama: 'Nasi Ayam', harga: 10000 },
-          { id: 'p2', kode: 'BRG-002', nama: 'Mie Ayam', harga: 8000 },
-          { id: 'p3', kode: 'BRG-003', nama: 'Bakso', harga: 8000 },
-          { id: 'p4', kode: 'BRG-004', nama: 'Air Mineral', harga: 3000 },
-          { id: 'p5', kode: 'BRG-005', nama: 'Es Teh', harga: 3000 },
-          { id: 'p6', kode: 'BRG-006', nama: 'Susu Kotak', harga: 5000 },
-          { id: 'p7', kode: 'BRG-007', nama: 'Roti', harga: 4000 },
-          { id: 'p8', kode: 'BRG-008', nama: 'Snack Ringan', harga: 2000 },
+        kelas:[
+          {id:'k1',nama:'1A',waliKelas:'Ustadzah Nur Aisyah',kapasitas:32},
+          {id:'k2',nama:'2A',waliKelas:'Ustadz Ahmad Fauzi',kapasitas:32},
+          {id:'k3',nama:'3A',waliKelas:'Ustadzah Siti Maryam',kapasitas:32},
+          {id:'k4',nama:'4A',waliKelas:'Ustadz Rizal Hakim',kapasitas:32}
         ],
-        absensiMapel: [],
-        settings: { limitHarian: 20000, version: 2 }
+        mapel:[
+          {id:'m1',nama:"Al-Qur'an (Tahfidz)",kelompok:'Akademik'},
+          {id:'m2',nama:'Pendidikan Agama Islam',kelompok:'Akademik'},
+          {id:'m3',nama:'Bahasa Indonesia',kelompok:'Akademik'},
+          {id:'m4',nama:'Matematika',kelompok:'Akademik'},
+          {id:'m5',nama:'Bahasa Inggris',kelompok:'Akademik'},
+          {id:'m6',nama:'PJOK',kelompok:'Akademik'}
+        ],
+        jadwal:[
+          {id:'j1',kelas:'1A',hari:'Senin',jam:'07:00-07:35',mapel:'Al-Qur\'an (Tahfidz)',guruId:'g5'},
+          {id:'j2',kelas:'1A',hari:'Senin',jam:'07:35-08:10',mapel:'Matematika',guruId:'g1'},
+          {id:'j3',kelas:'1A',hari:'Senin',jam:'08:10-08:45',mapel:'Bahasa Indonesia',guruId:'g1'},
+          {id:'j4',kelas:'2A',hari:'Senin',jam:'07:00-07:35',mapel:'Matematika',guruId:'g2'}
+        ],
+        produk:[
+          {id:'p1',kode:'BRG-001',nama:'Nasi Ayam',harga:10000,stok:50},
+          {id:'p2',kode:'BRG-002',nama:'Mie Ayam',harga:8000,stok:50},
+          {id:'p3',kode:'BRG-003',nama:'Bakso',harga:8000,stok:40},
+          {id:'p4',kode:'BRG-004',nama:'Air Mineral',harga:3000,stok:100},
+          {id:'p5',kode:'BRG-005',nama:'Es Teh',harga:3000,stok:80}
+        ],
+        absensiSiswa:[],
+        absensiGuru:[],
+        absensiMapel:[],
+        pembayaran:[],
+        kantin:[],
+        capaian:[],
+        notifications:[],
+        years:[{id:'y1',nama:'2025/2026',semester:'Ganjil',status:'Aktif'}],
+        settings:{limitHarian:20000, schoolName:'SD Program Unggulan Assunniyyah', notifMode:'WhatsApp', version:3}
       };
+      const saved=safeParse(localStorage.getItem(STORAGE_KEY), null);
+      const db=saved&&typeof saved==='object'?saved:base;
+      const merged={...base,...db};
+      merged.siswa=Array.isArray(db.siswa)?db.siswa:base.siswa;
+      merged.guru=Array.isArray(db.guru)?db.guru:base.guru;
+      merged.users=Array.isArray(db.users)?db.users:base.users;
+      merged.kelas=Array.isArray(db.kelas)?db.kelas:base.kelas;
+      merged.mapel=Array.isArray(db.mapel)?db.mapel:base.mapel;
+      merged.jadwal=Array.isArray(db.jadwal)?db.jadwal:base.jadwal;
+      merged.produk=Array.isArray(db.produk)?db.produk:base.produk;
+      merged.absensiSiswa=Array.isArray(db.absensiSiswa)?db.absensiSiswa:base.absensiSiswa;
+      merged.absensiGuru=Array.isArray(db.absensiGuru)?db.absensiGuru:base.absensiGuru;
+      merged.absensiMapel=Array.isArray(db.absensiMapel)?db.absensiMapel:base.absensiMapel;
+      merged.pembayaran=Array.isArray(db.pembayaran)?db.pembayaran:base.pembayaran;
+      merged.kantin=Array.isArray(db.kantin)?db.kantin:base.kantin;
+      merged.capaian=Array.isArray(db.capaian)?db.capaian:base.capaian;
+      merged.notifications=Array.isArray(db.notifications)?db.notifications:base.notifications;
+      merged.years=Array.isArray(db.years)?db.years:base.years;
+      merged.settings={...base.settings,...(db.settings||{})};
 
-      const data = raw && typeof raw === 'object' ? raw : {};
-      const result = {
-        ...base,
-        ...data,
-        siswa: Array.isArray(data.siswa) ? data.siswa : base.siswa,
-        guru: Array.isArray(data.guru) ? data.guru : base.guru,
-        users: Array.isArray(data.users) ? data.users : base.users,
-        absensiSiswa: Array.isArray(data.absensiSiswa) ? data.absensiSiswa : base.absensiSiswa,
-        absensiGuru: Array.isArray(data.absensiGuru) ? data.absensiGuru : base.absensiGuru,
-        pembayaran: Array.isArray(data.pembayaran) ? data.pembayaran : base.pembayaran,
-        kantin: Array.isArray(data.kantin) ? data.kantin : base.kantin,
-        capaian: Array.isArray(data.capaian) ? data.capaian : base.capaian,
-        produk: Array.isArray(data.produk) ? data.produk : base.produk,
-        absensiMapel: Array.isArray(data.absensiMapel) ? data.absensiMapel : base.absensiMapel,
-        settings: { ...base.settings, ...(data.settings || {}) }
-      };
-
-      if (!result.absensiSiswa.length) {
-        const t = today();
-        result.absensiSiswa = result.siswa.map((s, i) => ({
-          id: uid(), tanggal: t, siswaId: s.id,
-          status: i % 5 === 0 ? 'Izin' : i % 6 === 0 ? 'Sakit' : 'Hadir',
-          ket: ''
-        }));
+      if(!merged.absensiSiswa.length){
+        const t=today();
+        merged.absensiSiswa=merged.siswa.map((s,i)=>({id:uid(),tanggal:t,siswaId:s.id,status:i%5===0?'Izin':i%6===0?'Sakit':'Hadir',ket:''}));
       }
-      if (!result.absensiGuru.length) {
-        const t = today();
-        result.absensiGuru = result.guru.map((g, i) => ({
-          id: uid(), tanggal: t, guruId: g.id,
-          status: i === 2 ? 'Terlambat' : 'Hadir',
-          jamDatang: i === 2 ? '07:12' : '06:55',
-          ket: ''
-        }));
+      if(!merged.absensiGuru.length){
+        const t=today();
+        merged.absensiGuru=merged.guru.map((g,i)=>({id:uid(),tanggal:t,guruId:g.id,status:i===2?'Terlambat':'Hadir',jamDatang:i===2?'07:12':'06:55',ket:''}));
       }
-      if (!result.pembayaran.length) {
-        result.siswa.forEach((s, i) => {
-          result.pembayaran.push({ id: uid(), siswaId: s.id, jenis: 'SPP Bulan Ini', nominal: 150000, jatuhTempo: today(), status: i % 3 === 0 ? 'Belum Lunas' : 'Lunas', tanggalBayar: i % 3 === 0 ? null : today() });
-          result.pembayaran.push({ id: uid(), siswaId: s.id, jenis: 'Seragam Sekolah', nominal: 350000, jatuhTempo: today(), status: i % 4 === 0 ? 'Belum Lunas' : 'Lunas', tanggalBayar: i % 4 === 0 ? null : today() });
-        });
-      }
-      if (!result.kantin.length) {
-        result.kantin = [
-          { id: uid(), siswaId: 's1', tanggal: today(), waktu: '06:50:00', keterangan: 'Top Up Saldo', nominal: 50000, metode: 'Top Up' },
-          { id: uid(), siswaId: 's1', tanggal: today(), waktu: '09:40:00', keterangan: 'Nasi Ayam + Air Mineral', nominal: -12000, metode: 'Saldo' },
-          { id: uid(), siswaId: 's2', tanggal: today(), waktu: '06:52:00', keterangan: 'Top Up Saldo', nominal: 30000, metode: 'Top Up' },
-          { id: uid(), siswaId: 's2', tanggal: today(), waktu: '09:42:00', keterangan: 'Roti + Susu', nominal: -8000, metode: 'Saldo' },
+      if(!merged.absensiMapel.length){
+        merged.absensiMapel=[
+          {id:uid(),tanggal:today(),kelas:'1A',jam:'07:00',mapel:'Al-Qur\'an (Tahfidz)',guruId:'g5',siswaId:'s1',status:'Hadir'},
+          {id:uid(),tanggal:today(),kelas:'1A',jam:'07:00',mapel:'Al-Qur\'an (Tahfidz)',guruId:'g5',siswaId:'s2',status:'Hadir'},
+          {id:uid(),tanggal:today(),kelas:'1A',jam:'07:35',mapel:'Matematika',guruId:'g1',siswaId:'s1',status:'Hadir'}
         ];
       }
-      if (!result.capaian.length) {
-        result.capaian = [
-          { id: uid(), siswaId: 's1', mapel: 'Matematika', materi: 'Penjumlahan 1-20', nilai: 92, catatan: 'Sudah baik', tanggal: today() },
-          { id: uid(), siswaId: 's1', mapel: 'Bahasa Indonesia', materi: 'Membaca permulaan', nilai: 88, catatan: 'Membaca lancar', tanggal: today() },
-          { id: uid(), siswaId: 's2', mapel: 'Al-Qur\'an (Tahfidz)', materi: 'Juz 30', nilai: 95, catatan: 'Sangat baik', tanggal: today() }
+      if(!merged.kantin.length){
+        merged.kantin=[
+          {id:uid(),siswaId:'s1',tanggal:today(),waktu:'06:50:00',keterangan:'Top Up Saldo',nominal:50000,metode:'Top Up'},
+          {id:uid(),siswaId:'s1',tanggal:today(),waktu:'09:40:00',keterangan:'Nasi Ayam + Air Mineral',nominal:-12000,metode:'Saldo'},
+          {id:uid(),siswaId:'s2',tanggal:today(),waktu:'06:52:00',keterangan:'Top Up Saldo',nominal:30000,metode:'Top Up'},
+          {id:uid(),siswaId:'s2',tanggal:today(),waktu:'09:42:00',keterangan:'Roti + Susu',nominal:-8000,metode:'Saldo'}
         ];
       }
-
-      result.settings.limitHarian = Number(result.settings.limitHarian || 20000);
-      result.settings.version = 2;
-      return result;
+      if(!merged.pembayaran.length){
+        merged.pembayaran=[
+          {id:uid(),siswaId:'s1',jenis:'SPP Bulan Ini',nominal:150000,jatuhTempo:today(),status:'Belum Lunas',tanggalBayar:null},
+          {id:uid(),siswaId:'s1',jenis:'Seragam Sekolah',nominal:350000,jatuhTempo:today(),status:'Lunas',tanggalBayar:today()},
+          {id:uid(),siswaId:'s2',jenis:'SPP Bulan Ini',nominal:150000,jatuhTempo:today(),status:'Lunas',tanggalBayar:today()}
+        ];
+      }
+      if(!merged.capaian.length){
+        merged.capaian=[
+          {id:uid(),siswaId:'s1',mapel:'Matematika',materi:'Penjumlahan 1-20',nilai:92,catatan:'Sudah baik',tanggal:today()},
+          {id:uid(),siswaId:'s1',mapel:'Bahasa Indonesia',materi:'Membaca permulaan',nilai:88,catatan:'Lanjutkan latihan',tanggal:today()},
+          {id:uid(),siswaId:'s2',mapel:"Al-Qur'an (Tahfidz)",materi:'Juz 30',nilai:95,catatan:'Sangat baik',tanggal:today()}
+        ];
+      }
+      if(!merged.notifications.length){
+        merged.notifications=[
+          {id:uid(),judul:'Saldo kantin menipis',pesan:'Saldo siswa Ahmad Fauzan tersisa Rp 8.000.',jenis:'warning',tanggal:today()},
+          {id:uid(),judul:'SPP belum lunas',pesan:'Ahmad Fauzan memiliki tagihan SPP bulan ini belum dibayar.',jenis:'danger',tanggal:today()},
+          {id:uid(),judul:'Nilai baru',pesan:'Nilai Matematika Ahmad Fauzan masuk: 92.',jenis:'info',tanggal:today()}
+        ];
+      }
+      merged.settings.limitHarian=Number(merged.settings.limitHarian||20000);
+      merged.settings.version=3;
+      return merged;
     }
 
-    const db = normaliseDB(safeParse(localStorage.getItem(STORAGE_KEY), null));
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
-
-    let currentUser = null;
-    let currentView = 'dashboard';
-
-    const state = {
-      absenTanggal: today(),
-      absenKelas: '1A',
-      dateFrom: dayBack(30),
-      dateTo: today(),
-      qrKelas: 'Semua',
-      capaianSiswa: 's1',
-      scan: { kelas: '1A', jam: 1, mapel: 'Matematika' }
+    const db=loadDb();
+    let currentUser=null; let currentView='dashboard';
+    const state={
+      absenTanggal: today(), absenKelas: '1A', dateFrom: dayBack(30), dateTo: today(), capaianSiswa:'s1',
+      notifFilter:'all'
     };
 
-    const DEMO_USERS = [
-      { username: 'admin', password: 'admin123', label: 'Admin / Lembaga' },
-      { username: 'guru', password: 'guru123', label: 'Guru' },
-      { username: 'wali', password: 'wali123', label: 'Wali Murid' },
-      { username: 'kantin', password: 'kantin123', label: 'Petugas Kantin' }
-    ];
+    function saveDb(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); }
+    function getSiswa(id){ return db.siswa.find(s=>s.id===id); }
+    function getGuru(id){ return db.guru.find(g=>g.id===id); }
+    function getUser(id){ return db.users.find(u=>u.id===id); }
+    function kelasList(){ return [...new Set(db.kelas.map(k=>k.nama))].sort(); }
+    function saldoSiswa(sid){ return db.kantin.filter(k=>k.siswaId===sid && k.metode!=='Cash').reduce((sum,k)=>sum+Number(k.nominal||0),0); }
+    function getUserByLogin(u){ return db.users.find(x=>x.u===u); }
+    function limitSiswa(s){ return s && s.limit ? s.limit : (db.settings && db.settings.limitHarian ? db.settings.limitHarian : 20000); }
+    function validasiBelanja(siswaId,total,metode='Saldo'){ const s=getSiswa(siswaId); const used=db.kantin.filter(k=>k.siswaId===siswaId && k.tanggal===today() && k.nominal<0).reduce((sum,k)=>sum+Math.abs(Number(k.nominal||0)),0); const limit=limitSiswa(s); const saldo=saldoSiswa(siswaId); if(total > (limit - used)) return {ok:false,msg:`Limit harian terlampaui. Sisa limit: ${money(limit - used)}.`}; if(metode==='Saldo' && saldo < total) return {ok:false,msg:`Saldo tidak cukup. Saldo saat ini: ${money(saldo)}.`}; return {ok:true}; }
 
-    function saveDB() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
-    }
+    function persistSession(user){ if(!user){ sessionStorage.removeItem(SESSION_KEY); return; } sessionStorage.setItem(SESSION_KEY, JSON.stringify({u:user.u,role:user.role})); }
+    function toast(msg,err=false){ const el=document.createElement('div'); el.className='toast'+(err?' err':''); el.textContent=msg; document.body.appendChild(el); setTimeout(()=>el.remove(), err?2800:2000); }
 
-    function getSiswa(id) { return db.siswa.find((s) => s.id === id); }
-    function getGuru(id) { return db.guru.find((g) => g.id === id); }
-    function kelasList() { return [...new Set(db.siswa.map((s) => s.kelas))].sort(); }
-    function saldoSiswa(sid) {
-      return db.kantin
-        .filter((k) => k.siswaId === sid && k.metode !== 'Cash')
-        .reduce((sum, k) => sum + Number(k.nominal || 0), 0);
-    }
-    function limitSiswa(s) {
-      return s && s.limit ? s.limit : (db.settings && db.settings.limitHarian ? db.settings.limitHarian : 20000);
-    }
-
-    function getSessionUser() {
-      const raw = safeParse(sessionStorage.getItem(SESSION_KEY), null);
-      if (!raw || !raw.u) return null;
-      return db.users.find((u) => u.u === raw.u && u.role === raw.role) || null;
-    }
-
-    function persistSession(user) {
-      if (!user) {
-        sessionStorage.removeItem(SESSION_KEY);
-        return;
-      }
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify({ u: user.u, role: user.role }));
-    }
-
-    function toast(msg, err = false) {
-      const el = document.createElement('div');
-      el.className = `toast${err ? ' err' : ''}`;
-      el.textContent = msg;
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), err ? 2800 : 2000);
-    }
-
-    function qrSvg(text) {
+    function qrSvg(text){
       try {
-        const q = qrcode(0, 'M'); q.addData(text); q.make();
-        const n = q.getModuleCount();
-        let path = '';
-        for (let y = 0; y < n; y++) {
-          for (let x = 0; x < n; x++) {
-            if (q.isDark(y, x)) path += `M${x},${y}h1v1h-1z`;
-          }
-        }
-        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 ${n + 4} ${n + 4}" shape-rendering="crispEdges"><rect x="-2" y="-2" width="${n + 4}" height="${n + 4}" fill="#fff" /><path d="${path}" fill="#000" /></svg>`;
-      } catch {
-        return `<div style="padding:8px;font-size:10px;color:#b4252a;">QR Error</div>`;
-      }
+        const q = qrcode(0,'M'); q.addData(text); q.make(); const n=q.getModuleCount(); let path='';
+        for(let y=0;y<n;y++){ for(let x=0;x<n;x++){ if(q.isDark(y,x)) path += `M${x},${y}h1v1h-1z`; } }
+        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 ${n+4} ${n+4}" shape-rendering="crispEdges"><rect x="-2" y="-2" width="${n+4}" height="${n+4}" fill="#fff" /><path d="${path}" fill="#000" /></svg>`;
+      } catch { return `<div style="padding:8px;font-size:10px;color:#b4252a;">QR Error</div>`; }
     }
 
-    function renderLogin() {
-      $('#app').innerHTML = `
-        <div class="login-shell">
-          <div class="login-card">
-            <div class="login-logo">🕌</div>
-            <h1>SD Program Unggulan Assunniyyah</h1>
-            <p class="subtitle">Jl. Tegir, Desa Pasirian, Kec. Pasirian<br />Kabupaten Lumajang</p>
-            <form id="loginForm">
-              <label>Username</label>
-              <input name="username" placeholder="Masukkan username" required />
-              <label>Password</label>
-              <input name="password" type="password" placeholder="Masukkan password" required />
-              <button class="btn btn-primary full" type="submit" style="margin-top:18px;">Masuk ke Sistem</button>
-            </form>
-            <div class="demo-box">
-              <strong>Mode Demo</strong>
-              ${DEMO_USERS.map((d) => `<div class="demo-row"><span>${d.label}</span><code>${d.username} / ${d.password}</code></div>`).join('')}
-            </div>
-            <div class="demo-note">Semua data demo disimpan di browser Anda.</div>
+    function renderLogin(){
+      $('#app').innerHTML=`
+      <div class="login-shell">
+        <div class="login-card">
+          <div class="login-logo">🕌</div>
+          <h1>SD Program Unggulan Assunniyyah</h1>
+          <p class="subtitle">Jl. Tegir, Desa Pasirian, Kec. Pasirian<br/>Kabupaten Lumajang</p>
+          <form id="loginForm">
+            <label>Username</label>
+            <input name="username" placeholder="Masukkan username" required />
+            <label>Password</label>
+            <input name="password" type="password" placeholder="Masukkan password" required />
+            <button class="btn btn-primary full" type="submit" style="margin-top:18px;">Masuk ke Sistem</button>
+          </form>
+          <div class="demo-box">
+            <strong>Mode Demo</strong>
+            <div class="demo-row"><span>Admin / Lembaga</span><code>admin / admin123</code></div>
+            <div class="demo-row"><span>Guru</span><code>guru / guru123</code></div>
+            <div class="demo-row"><span>Wali Murid</span><code>wali / wali123</code></div>
+            <div class="demo-row"><span>Petugas Kantin</span><code>kantin / kantin123</code></div>
           </div>
+          <div class="demo-note">Semua data demo tersimpan di browser.</div>
         </div>
-      `;
-      $('#loginForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const fd = new FormData(e.target);
-        const username = String(fd.get('username') || '').trim().toLowerCase();
-        const password = String(fd.get('password') || '');
-        const found = db.users.find((u) => u.u === username && u.p === password);
-        if (!found) {
-          toast('Username atau password salah', true);
-          return;
-        }
-        currentUser = found;
-        state.capaianSiswa = found.role === 'wali' ? found.ref : (db.siswa[0]?.id || '');
-        currentView = found.role === 'guru' ? 'dashboard' : found.role === 'kantin' ? 'kasir' : 'dashboard';
-        persistSession(found);
-        renderApp();
-        toast(`Selamat datang, ${found.nama}`);
-      });
+      </div>`;
+      $('#loginForm').addEventListener('submit', e=>{ e.preventDefault(); const fd=new FormData(e.target); const username=(fd.get('username')||'').trim().toLowerCase(); const password=String(fd.get('password')||''); const found=db.users.find(u=>u.u===username && u.p===password); if(!found){ toast('Username atau password salah',true); return; } currentUser={...found}; currentView=found.role==='kantin'?'kasir':(found.role==='guru'?'dashboard':'dashboard'); persistSession(found); renderApp(); toast(`Selamat datang, ${found.nama}`); });
     }
 
-    function renderApp() {
-      if (!currentUser) {
-        renderLogin();
-        return;
-      }
-      const navItems = {
-        admin: ['dashboard', 'absensiswa', 'absenguru', 'rekap', 'administrasi', 'kantin', 'qrbarang', 'capaian'],
-        guru: ['dashboard', 'absensiswa', 'absenguru', 'rekap', 'capaian'],
-        wali: ['dashboard', 'absensiswa', 'rekap', 'administrasi', 'kantin', 'capaian'],
-        kantin: ['kasir', 'kantin', 'qrbarang']
-      }[currentUser.role] || ['dashboard'];
-
-      const roleLabel = { admin: 'Administrator', guru: 'Guru', wali: 'Wali Murid', kantin: 'Petugas Kantin' };
-      const labels = {
-        dashboard: 'Dashboard',
-        absensiswa: 'Absen Siswa',
-        absenguru: 'Absen Guru',
-        rekap: 'Rekap Kehadiran',
-        administrasi: 'Administrasi',
-        kantin: 'Riwayat Kantin',
-        qrbarang: 'QR Barang',
-        capaian: 'Capaian Belajar',
-        kasir: 'Kasir'
-      };
-      const icons = {
-        dashboard: '🏠', absensiswa: '🧑‍🎓', absenguru: '👨‍🏫', rekap: '📊', administrasi: '💰', kantin: '🍱', qrbarang: '🏷️', capaian: '📈', kasir: '🧾'
-      };
-
-      const initials = currentUser.nama.split(' ').map((w) => w[0]).slice(0,2).join('').toUpperCase();
-      $('#app').innerHTML = `
-        <div class="app">
-          <aside class="sidebar">
-            <div class="brand">
-              <div class="brand-mark">🕌</div>
-              <div>
-                <div class="brand-title">SD PU Assunniyyah</div>
-                <div class="brand-sub">Pasirian, Lumajang</div>
-              </div>
+    function renderApp(){
+      if(!currentUser){ renderLogin(); return; }
+      const labels={dashboard:'Dashboard', siswa:'Data Siswa', guru:'Manajemen Guru & User', kelas:'Master Kelas', mapel:'Master Mapel', jadwal:'Jadwal Pelajaran', rekap:'Rekap Kehadiran', absensi:'Absensi Siswa', absensiGuru:'Absensi Guru', kasir:'Kasir', produk:'Produk Kantin', import:'Impor CSV', tahun:'Tahun Ajaran', notifikasi:'Notifikasi', laporan:'Laporan & Export'};
+      const icons={dashboard:'🏠', siswa:'🧑‍🎓', guru:'👨‍🏫', kelas:'🏫', mapel:'📘', jadwal:'🗓️', rekap:'📊', absensi:'✅', absensiGuru:'🧾', kasir:'🧾', produk:'🏷️', import:'📥', tahun:'📚', notifikasi:'🔔', laporan:'📈'};
+      const navs={admin:['dashboard','siswa','guru','kelas','mapel','jadwal','absensi','absensiGuru','rekap','kasir','produk','import','tahun','notifikasi','laporan'], guru:['dashboard','absensi','absensiGuru','rekap','jadwal','notifikasi'], wali:['dashboard','siswa','absensi','rekap','notifikasi'], kantin:['dashboard','kasir','produk','laporan','notifikasi']};
+      const items=navs[currentUser.role]||['dashboard'];
+      const initials=(currentUser.nama||'').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+      $('#app').innerHTML=`
+      <div class="app">
+        <aside class="sidebar">
+          <div class="brand">
+            <div class="brand-mark">🕌</div>
+            <div><div class="brand-title">SD PU Assunniyyah</div><div class="brand-sub">Pasirian, Lumajang</div></div>
+          </div>
+          <nav class="nav">
+            ${items.map(k=>`<button class="nav-btn ${currentView===k?'active':''}" data-view="${k}"><span class="nav-icon">${icons[k]}</span><span>${labels[k]}</span></button>`).join('')}
+          </nav>
+          <div class="sidebar-bottom"><button class="btn btn-ghost full" id="logoutBtn">⎋ Keluar</button></div>
+        </aside>
+        <main class="main">
+          <header class="topbar">
+            <div><h2>${labels[currentView]||'Dashboard'}</h2><div class="sub">Sistem Informasi Sekolah</div></div>
+            <div class="userbox">
+              <div class="avatar">${initials}</div>
+              <div class="user-meta"><div class="user-name">${esc(currentUser.nama)}</div><div class="user-role">${currentUser.role}</div></div>
             </div>
-            <nav class="nav">
-              ${navItems.map((key) => `
-                <button class="nav-btn ${currentView === key ? 'active' : ''}" data-view="${key}">
-                  <span class="nav-icon">${icons[key]}</span>
-                  <span>${labels[key]}</span>
-                </button>
-              `).join('')}
-            </nav>
-            <div class="sidebar-bottom">
-              <button class="btn btn-ghost full" id="logoutBtn">⎋ Keluar</button>
-            </div>
-          </aside>
-          <main class="main">
-            <header class="topbar">
-              <div>
-                <h2>${labels[currentView] || 'Dashboard'}</h2>
-                <div class="sub">Sistem Informasi Sekolah</div>
-              </div>
-              <div class="userbox">
-                <div class="avatar">${initials}</div>
-                <div class="user-meta">
-                  <div class="user-name">${esc(currentUser.nama)}</div>
-                  <div class="user-role">${roleLabel[currentUser.role]}</div>
-                </div>
-              </div>
-            </header>
-            <div class="content-shell" id="content"></div>
-          </main>
-        </div>
-      `;
-
-      $$('.nav-btn').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          currentView = btn.dataset.view;
-          renderTampilan();
-        });
-      });
-      $('#logoutBtn').addEventListener('click', () => {
-        currentUser = null;
-        currentView = 'dashboard';
-        persistSession(null);
-        renderApp();
-      });
-      renderTampilan();
+          </header>
+          <div class="content-shell" id="content"></div>
+        </main>
+      </div>`;
+      $$('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>{ currentView=btn.dataset.view; renderView(); }));
+      $('#logoutBtn').addEventListener('click',()=>{ currentUser=null; persistSession(null); renderApp(); });
+      renderView();
     }
 
-    function statusClass(status) {
-      const map = { Hadir: 'hadir', Sakit: 'sakit', Izin: 'izin', Alpa: 'alpa', Terlambat: 'late', Lunas: 'lunas', 'Belum Lunas': 'belum' };
-      return map[status] || 'hadir';
+    function renderView(){
+      if(!currentUser) return;
+      const pages={dashboard:renderDashboard, siswa:renderSiswa, guru:renderGuru, kelas:renderKelas, mapel:renderMapel, jadwal:renderJadwal, absensi:renderAbsensiSiswa, absensiGuru:renderAbsensiGuru, rekap:renderRekap, kasir:renderKasir, produk:renderProduk, import:renderImport, tahun:renderYear, notifikasi:renderNotifikasi, laporan:renderLaporan};
+      $('#content').innerHTML=(pages[currentView]||renderDashboard)();
+      bindDynamicHandlers();
     }
 
-    function renderTampilan() {
-      const tplMap = {
-        dashboard: renderDashboard,
-        absensiswa: renderAbsenSiswa,
-        absenguru: renderAbsenGuru,
-        rekap: renderRekap,
-        administrasi: renderAdministrasi,
-        kantin: renderKantin,
-        qrbarang: renderQrBarang,
-        capaian: renderCapaian,
-        kasir: renderKasir
-      };
-      $('#content').innerHTML = tplMap[currentView] ? tplMap[currentView]() : renderDashboard();
-      bindHandlers();
+    function bindDynamicHandlers(){
+      $('#applyRekap')?.addEventListener('click',()=>{ state.dateFrom=$('#rekapFrom').value||dayBack(30); state.dateTo=$('#rekapTo').value||today(); if(state.dateFrom>state.dateTo){ toast('Rentang tanggal tidak valid',true); return; } renderView();});
+      $('#saveStudentForm')?.addEventListener('click',saveStudentForm);
+      $('#saveGuruForm')?.addEventListener('click',saveGuruForm);
+      $('#saveUserForm')?.addEventListener('click',saveUserForm);
+      $('#saveKelasForm')?.addEventListener('click',saveKelasForm);
+      $('#saveMapelForm')?.addEventListener('click',saveMapelForm);
+      $('#saveJadwalForm')?.addEventListener('click',saveJadwalForm);
+      $('#saveProdukForm')?.addEventListener('click',saveProdukForm);
+      $('#saveYearForm')?.addEventListener('click',saveYearForm);
+      $('#importCsvBtn')?.addEventListener('click',()=>$('#csvFile').click());
+      $('#csvFile')?.addEventListener('change', handleCsvImport);
+      $('#saveAbsensiSiswaBtn')?.addEventListener('click',saveAbsensiSiswa);
+      $('#saveAbsensiGuruBtn')?.addEventListener('click',saveAbsensiGuru);
+      $('#saveKasirBtn')?.addEventListener('click',saveKasir);
+      $('#resetPwdBtn')?.addEventListener('click',resetPasswordUser);
+      $('#capaianSelect')?.addEventListener('change', e=>{ state.capaianSiswa=e.target.value; renderView(); });
+      $$('.delete-siswa').forEach(btn=>btn.addEventListener('click',()=>deleteSiswa(btn.dataset.id)));
+      $$('.delete-guru').forEach(btn=>btn.addEventListener('click',()=>deleteGuru(btn.dataset.id)));
+      $$('.delete-user').forEach(btn=>btn.addEventListener('click',()=>deleteUser(btn.dataset.id)));
+      $$('.delete-kelas').forEach(btn=>btn.addEventListener('click',()=>deleteKelas(btn.dataset.id)));
+      $$('.delete-mapel').forEach(btn=>btn.addEventListener('click',()=>deleteMapel(btn.dataset.id)));
+      $$('.delete-jadwal').forEach(btn=>btn.addEventListener('click',()=>deleteJadwal(btn.dataset.id)));
+      $$('.delete-produk').forEach(btn=>btn.addEventListener('click',()=>deleteProduk(btn.dataset.id)));
+      $$('.edit-siswa').forEach(btn=>btn.addEventListener('click',()=>loadStudentForm(btn.dataset.id)));
+      $$('.edit-guru').forEach(btn=>btn.addEventListener('click',()=>loadGuruForm(btn.dataset.id)));
+      $$('.edit-user').forEach(btn=>btn.addEventListener('click',()=>loadUserForm(btn.dataset.id)));
+      $$('.edit-kelas').forEach(btn=>btn.addEventListener('click',()=>loadKelasForm(btn.dataset.id)));
+      $$('.edit-mapel').forEach(btn=>btn.addEventListener('click',()=>loadMapelForm(btn.dataset.id)));
+      $$('.edit-jadwal').forEach(btn=>btn.addEventListener('click',()=>loadJadwalForm(btn.dataset.id)));
+      $$('.edit-produk').forEach(btn=>btn.addEventListener('click',()=>loadProdukForm(btn.dataset.id)));
+      $$('.send-notif').forEach(btn=>btn.addEventListener('click',()=>triggerNotification(btn.dataset.type, btn.dataset.msg, btn.dataset.target)));
+      $$('.clear-notif').forEach(btn=>btn.addEventListener('click',()=>{ db.notifications = db.notifications.filter(n=>n.id!==btn.dataset.id); saveDb(); renderView(); }));
     }
 
-    function bindHandlers() {
-      const btn = $('#btnAbsensiSiswa');
-      if (btn) btn.addEventListener('click', () => {
-        const kelas = $('#selKelasAbsen').value;
-        const tanggal = $('#inTanggalAbsen').value || today();
-        state.absenKelas = kelas;
-        state.absenTanggal = tanggal;
-        renderTampilan();
-      });
+    function addNotification(title, message, type='info'){ db.notifications.unshift({id:uid(),judul:title,pesan:message,jenis:type,tanggal:today()}); saveDb(); }
+    function triggerNotification(type,msg,target='-'){ addNotification(type==='warning'?'Peringatan':type==='danger'?'Urgent':'Informasi', msg || `Informasi terbaru untuk ${target}`, type); toast('Notifikasi dibuat'); }
 
-      const saveAbsen = $('#saveAbsenSiswa');
-      if (saveAbsen) saveAbsen.addEventListener('click', () => {
-        const tanggal = state.absenTanggal;
-        const rows = $$('#tblAbsen tbody tr[data-sid]');
-        rows.forEach((tr) => {
-          const sid = tr.dataset.sid;
-          const status = tr.querySelector('select').value;
-          const ket = (tr.querySelector('input')?.value || '').trim();
-          db.absensiSiswa = db.absensiSiswa.filter((a) => !(a.tanggal === tanggal && a.siswaId === sid));
-          db.absensiSiswa.push({ id: uid(), tanggal, siswaId: sid, status, ket });
-        });
-        saveDB();
-        toast('Absensi siswa berhasil disimpan');
-        renderTampilan();
-      });
-
-      const saveGuru = $('#saveAbsenGuru');
-      if (saveGuru) saveGuru.addEventListener('click', () => {
-        const tanggal = $('#inTanggalGuru').value || today();
-        const rows = $$('#tblGuru tbody tr[data-gid]');
-        rows.forEach((tr) => {
-          const gid = tr.dataset.gid;
-          const status = tr.querySelector('select').value;
-          const jam = tr.querySelector('input').value.trim();
-          const ket = (tr.querySelectorAll('input')[1]?.value || '').trim();
-          db.absensiGuru = db.absensiGuru.filter((a) => !(a.tanggal === tanggal && a.guruId === gid));
-          db.absensiGuru.push({ id: uid(), tanggal, guruId: gid, status, jamDatang: jam || '', ket });
-        });
-        saveDB();
-        toast('Absensi guru berhasil disimpan');
-        renderTampilan();
-      });
-
-      const saveKasir = $('#saveKasirTrx');
-      if (saveKasir) saveKasir.addEventListener('click', () => {
-        const siswaId = $('#kasirSiswa').value;
-        const produkId = $('#kasirProduk').value;
-        const metode = $('#kasirMetode').value;
-        const qty = Number($('#kasirQty').value || 1);
-        const produk = db.produk.find((p) => p.id === produkId);
-        const siswa = getSiswa(siswaId);
-        if (!produk || !siswa) {
-          toast('Pilih produk dan siswa terlebih dahulu', true);
-          return;
-        }
-        const total = produk.harga * qty;
-        const valid = validasiBelanja(siswaId, total, metode);
-        if (!valid.ok) {
-          toast(valid.msg, true);
-          return;
-        }
-        db.kantin.push({
-          id: uid(), siswaId, tanggal: today(), waktu: new Date().toTimeString().slice(0,8),
-          keterangan: `${qty} x ${produk.nama}`,
-          nominal: metode === 'Top Up' ? total : -total,
-          metode: metode === 'Top Up' ? 'Top Up' : 'Saldo'
-        });
-        saveDB();
-        toast('Transaksi berhasil dicatat');
-        renderTampilan();
-      });
-
-      $('#btnResetKasir')?.addEventListener('click', () => {
-        renderTampilan();
-      });
-    }
-
-    function validasiBelanja(siswaId, total, metode) {
-      const s = getSiswa(siswaId);
-      const used = db.kantin.filter((k) => k.siswaId === siswaId && k.tanggal === today() && k.nominal < 0).reduce((sum, k) => sum + Math.abs(k.nominal), 0);
-      const limit = limitSiswa(s);
-      const saldo = saldoSiswa(siswaId);
-      if (total > (limit - used)) {
-        return { ok: false, msg: `Limit harian terlampaui. Sisa limit: ${money(limit - used)}.` };
-      }
-      if (metode === 'Saldo' && saldo < total) {
-        return { ok: false, msg: `Saldo tidak cukup. Saldo saat ini: ${money(saldo)}.` };
-      }
-      return { ok: true };
-    }
-
-    function renderDashboard() {
-      const t = today();
-      const totalSiswa = db.siswa.length;
-      const hadir = db.absensiSiswa.filter((a) => a.tanggal === t && a.status === 'Hadir').length;
-      const totalAbs = db.absensiSiswa.filter((a) => a.tanggal === t).length;
-      const persen = totalAbs ? Math.round((hadir / totalAbs) * 100) : 0;
-      const tunggakan = db.pembayaran.filter((p) => p.status === 'Belum Lunas').reduce((sum, p) => sum + Number(p.nominal || 0), 0);
-      const guruHadir = db.absensiGuru.filter((a) => a.tanggal === t && a.status === 'Hadir').length;
-      const totalGuru = db.guru.length;
-      const transaksiHariIni = db.kantin.filter((k) => k.tanggal === t && k.nominal < 0).reduce((sum, k) => sum + Math.abs(k.nominal), 0);
-
+    function renderDashboard(){
+      const todayStr=today();
+      const totalSiswa=db.siswa.length, hadir=db.absensiSiswa.filter(a=>a.tanggal===todayStr && a.status==='Hadir').length; const totalAbs=db.absensiSiswa.filter(a=>a.tanggal===todayStr).length; const pct=totalAbs?Math.round((hadir/totalAbs)*100):0; const tunggakan=db.pembayaran.filter(p=>p.status==='Belum Lunas').reduce((sum,p)=>sum+Number(p.nominal||0),0); const guruHadir=db.absensiGuru.filter(a=>a.tanggal===todayStr && a.status==='Hadir').length; const totalGuru=db.guru.length; const sales=db.kantin.filter(k=>k.tanggal===todayStr && k.nominal<0).reduce((s,k)=>s+Math.abs(Number(k.nominal||0)),0); const notif=db.notifications.length;
       return `
-        <div class="section-grid grid-4" style="margin-bottom:18px;">
-          <div class="stat">
-            <div class="stat-label">Total Siswa</div>
-            <div class="stat-value">${totalSiswa}</div>
-            <div class="stat-hint">${kelasList().length} kelas aktif</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label">Kehadiran Hari Ini</div>
-            <div class="stat-value">${persen}%</div>
-            <div class="stat-hint">${hadir} hadir dari ${totalAbs} siswa</div>
-          </div>
-          <div class="stat gold">
-            <div class="stat-label">Guru Hadir</div>
-            <div class="stat-value">${guruHadir}/${totalGuru}</div>
-            <div class="stat-hint">Termasuk izin & terlambat</div>
-          </div>
-          <div class="stat danger">
-            <div class="stat-label">Tunggakan</div>
-            <div class="stat-value">${money(tunggakan)}</div>
-            <div class="stat-hint">${db.pembayaran.filter((p) => p.status === 'Belum Lunas').length} tagihan belum lunas</div>
-          </div>
-        </div>
-
-        <div class="section-grid grid-2">
-          <div class="card">
-            <div class="card-head">
-              <div>
-                <h3>Kehadiran per Kelas</h3>
-                <p>Rekap hari ini</p>
-              </div>
-            </div>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr><th>Kelas</th><th>Siswa</th><th>Hadir</th><th>Izin/Sakit</th><th>%</th></tr>
-                </thead>
-                <tbody>
-                  ${kelasList().map((kelas) => {
-                    const list = db.siswa.filter((s) => s.kelas === kelas);
-                    const records = db.absensiSiswa.filter((a) => a.tanggal === t && list.some((s) => s.id === a.siswaId));
-                    const hadirK = records.filter((a) => a.status === 'Hadir').length;
-                    const sakitK = records.filter((a) => a.status === 'Izin' || a.status === 'Sakit').length;
-                    const pct = records.length ? Math.round((hadirK / records.length) * 100) : 0;
-                    return `<tr><td><b>${kelas}</b></td><td>${list.length}</td><td>${hadirK}</td><td>${sakitK}</td><td>${pct}%</td></tr>`;
-                  }).join('')}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-head">
-              <div>
-                <h3>Aktivitas Kantin Hari Ini</h3>
-                <p>${money(transaksiHariIni)} total pembelian</p>
-              </div>
-            </div>
-            <div class="list">
-              ${db.kantin.filter((k) => k.tanggal === t && k.nominal < 0).slice(-5).reverse().map((k) => `
-                <div class="list-item">
-                  <div>
-                    <div class="list-title">${esc(getSiswa(k.siswaId)?.nama || '-')}</div>
-                    <div class="list-meta">${esc(k.keterangan)} • ${esc(k.metode)}</div>
-                  </div>
-                  <strong style="color:var(--danger);">${money(Math.abs(k.nominal))}</strong>
-                </div>
-              `).join('') || '<div class="empty">Belum ada transaksi kantin hari ini</div>'}
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderAbsenSiswa() {
-      if (currentUser.role === 'wali') {
-        const child = getSiswa(currentUser.ref);
-        const rows = db.absensiSiswa.filter((a) => a.siswaId === child?.id).sort((a, b) => b.tanggal.localeCompare(a.tanggal));
-        return `
-          <div class="card">
-            <div class="card-head">
-              <div>
-                <h3>Riwayat Kehadiran ${esc(child?.nama || '')}</h3>
-                <p>Kelas ${esc(child?.kelas || '-')} • NIS ${esc(child?.nis || '-')}</p>
-              </div>
-            </div>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Tanggal</th><th>Status</th><th>Keterangan</th></tr></thead>
-                <tbody>
-                  ${rows.map((a) => `
-                    <tr>
-                      <td>${fmtDate(a.tanggal)}</td>
-                      <td><span class="pill ${statusClass(a.status)}">${a.status}</span></td>
-                      <td>${esc(a.ket || '-')}</td>
-                    </tr>
-                  `).join('') || '<tr><td colspan="3"><div class="empty">Belum ada data</div></td></tr>'}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
-      }
-
-      const rows = db.siswa.filter((s) => s.kelas === state.absenKelas).map((s) => {
-        const rec = db.absensiSiswa.find((a) => a.tanggal === state.absenTanggal && a.siswaId === s.id);
-        const status = rec?.status || 'Hadir';
-        return `
-          <tr data-sid="${s.id}">
-            <td><b>${esc(s.nama)}</b><div style="color: var(--muted); font-size:0.7rem; margin-top:3px;">${s.nis}</div></td>
-            <td>${s.kelas}</td>
-            <td>
-              <select>
-                ${['Hadir','Sakit','Izin','Alpa'].map((opt) => `<option value="${opt}" ${opt === status ? 'selected' : ''}>${opt}</option>`).join('')}
-              </select>
-            </td>
-            <td><input value="${esc(rec?.ket || '')}" placeholder="Keterangan" /></td>
-          </tr>
-        `;
-      }).join('');
-
-      return `
-        <div class="card" style="margin-bottom:16px;">
-          <div class="form-grid">
-            <div class="field">
-              <label>Tanggal</label>
-              <input id="inTanggalAbsen" type="date" value="${state.absenTanggal}" />
-            </div>
-            <div class="field">
-              <label>Kelas</label>
-              <select id="selKelasAbsen">
-                ${kelasList().map((k) => `<option value="${k}" ${k === state.absenKelas ? 'selected' : ''}>${k}</option>`).join('')}
-              </select>
-            </div>
-            <div class="field">
-              <label>&nbsp;</label>
-              <button class="btn btn-ghost" id="btnAbsensiSiswa">Tampilkan</button>
-            </div>
-            <div class="field">
-              <label>&nbsp;</label>
-              <button class="btn btn-primary" id="saveAbsenSiswa">Simpan Absensi</button>
-            </div>
-          </div>
-        </div>
-
+      <div class="section-grid grid-4" style="margin-bottom:18px;">
+        <div class="stat"><div class="stat-label">Total Siswa</div><div class="stat-value">${totalSiswa}</div><div class="stat-hint">${db.kelas.length} kelas aktif</div></div>
+        <div class="stat"><div class="stat-label">Kehadiran Hari Ini</div><div class="stat-value">${pct}%</div><div class="stat-hint">${hadir} hadir dari ${totalAbs} siswa</div></div>
+        <div class="stat gold"><div class="stat-label">Guru Hadir</div><div class="stat-value">${guruHadir}/${totalGuru}</div><div class="stat-hint">Status absensi guru</div></div>
+        <div class="stat danger"><div class="stat-label">Tunggakan</div><div class="stat-value">${money(tunggakan)}</div><div class="stat-hint">${db.pembayaran.filter(p=>p.status==='Belum Lunas').length} tagihan</div></div>
+      </div>
+      <div class="section-grid grid-2">
         <div class="card">
-          <div class="card-head">
-            <div>
-              <h3>Daftar Kehadiran Siswa</h3>
-              <p>Kelas ${state.absenKelas} • ${fmtDate(state.absenTanggal)}</p>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table id="tblAbsen">
-              <thead><tr><th>Nama</th><th>Kelas</th><th>Status</th><th>Keterangan</th></tr></thead>
-              <tbody>${rows || '<tr><td colspan="4"><div class="empty">Belum ada siswa</div></td></tr>'}</tbody>
-            </table>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderAbsenGuru() {
-      if (currentUser.role === 'guru') {
-        const rows = db.absensiGuru.filter((a) => a.guruId === currentUser.ref).sort((a,b) => b.tanggal.localeCompare(a.tanggal));
-        return `
-          <div class="card">
-            <div class="card-head">
-              <div>
-                <h3>Riwayat Absensi Saya</h3>
-                <p>${esc(currentUser.nama)}</p>
-              </div>
-            </div>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Tanggal</th><th>Status</th><th>Jam Datang</th><th>Keterangan</th></tr></thead>
-                <tbody>
-                  ${rows.map((a) => `
-                    <tr>
-                      <td>${fmtDate(a.tanggal)}</td>
-                      <td><span class="pill ${statusClass(a.status)}">${a.status}</span></td>
-                      <td>${esc(a.jamDatang || '-')}</td>
-                      <td>${esc(a.ket || '-')}</td>
-                    </tr>
-                  `).join('') || '<tr><td colspan="4"><div class="empty">Belum ada data</div></td></tr>'}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
-      }
-
-      const rows = db.guru.map((g) => {
-        const rec = db.absensiGuru.find((a) => a.tanggal === state.absenTanggal && a.guruId === g.id);
-        const status = rec?.status || 'Hadir';
-        return `
-          <tr data-gid="${g.id}">
-            <td>${esc(g.nama)}</td>
-            <td>${esc(g.mapel)}</td>
-            <td>
-              <select>
-                ${['Hadir','Terlambat','Izin'].map((opt) => `<option value="${opt}" ${opt === status ? 'selected' : ''}>${opt}</option>`).join('')}
-              </select>
-            </td>
-            <td><input value="${esc(rec?.jamDatang || '')}" placeholder="07:00" /></td>
-            <td><input value="${esc(rec?.ket || '')}" placeholder="Keterangan" /></td>
-          </tr>
-        `;
-      }).join('');
-
-      return `
-        <div class="card" style="margin-bottom:16px;">
-          <div class="form-grid">
-            <div class="field">
-              <label>Tanggal</label>
-              <input id="inTanggalGuru" type="date" value="${state.absenTanggal}" />
-            </div>
-            <div class="field" style="grid-column: span 1;">
-              <label>&nbsp;</label>
-              <button class="btn btn-primary" id="saveAbsenGuru">Simpan Absensi Guru</button>
-            </div>
-          </div>
+          <div class="card-head"><div><h3>Ringkasan Akademik</h3><p>Data real-time</p></div></div>
+          <div class="list">${db.kelas.map(k=>{ const s=db.siswa.filter(st=>st.kelas===k.nama).length; const hadirK=db.absensiSiswa.filter(a=>a.tanggal===todayStr && db.siswa.filter(st=>st.kelas===k.nama).some(st=>st.id===a.siswaId) && a.status==='Hadir').length; return `<div class="list-item"><div><div class="list-title">${k.nama}</div><div class="list-meta">${s} siswa</div></div><div class="badge">${hadirK}/${s}</div></div>`; }).join('') || '<div class="empty">Belum ada kelas</div>'}</div>
         </div>
         <div class="card">
-          <div class="card-head">
-            <div>
-              <h3>Daftar Kehadiran Guru</h3>
-              <p>${fmtDate(state.absenTanggal)}</p>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table id="tblGuru">
-              <thead><tr><th>Nama Guru</th><th>Mapel / Jabatan</th><th>Status</th><th>Jam Datang</th><th>Keterangan</th></tr></thead>
-              <tbody>${rows}</tbody>
-            </table>
-          </div>
+          <div class="card-head"><div><h3>Aktivitas Terbaru</h3><p>Notifikasi sekolah</p></div></div>
+          <div class="list">${db.notifications.slice(0,5).map(n=>`<div class="list-item"><div><div class="list-title">${esc(n.judul)}</div><div class="list-meta">${esc(n.pesan)}</div></div><span class="pill ${n.jenis==='danger'?'belum':n.jenis==='warning'?'late':'izin'}">${n.jenis}</span></div>`).join('') || '<div class="empty">Tidak ada notifikasi</div>'}</div>
         </div>
-      `;
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <div class="card-head"><div><h3>Informasi Operasional</h3><p>Penjualan & notifikasi</p></div></div>
+        <div class="section-grid grid-3">
+          <div class="stat warn"><div class="stat-label">Penjualan Hari Ini</div><div class="stat-value">${money(sales)}</div><div class="stat-hint">Total omset kantin</div></div>
+          <div class="stat"><div class="stat-label">Total Notifikasi</div><div class="stat-value">${notif}</div><div class="stat-hint">Pesan aktif</div></div>
+          <div class="stat gold"><div class="stat-label">Status Tahun Ajaran</div><div class="stat-value">${db.years.find(y=>y.status==='Aktif')?.nama || 'Belum diatur'}</div><div class="stat-hint">${db.years.find(y=>y.status==='Aktif')?.semester || 'Belum ada semester'}</div></div>
+        </div>
+      </div>`;
     }
 
-    function renderRekap() {
-      const from = state.dateFrom; const to = state.dateTo;
-      const rows = db.siswa.map((s) => {
-        const records = db.absensiSiswa.filter((a) => a.siswaId === s.id && a.tanggal >= from && a.tanggal <= to);
-        const hadir = records.filter((a) => a.status === 'Hadir').length;
-        const pers = records.length ? Math.round((hadir / records.length) * 100) : 0;
-        return `<tr><td>${esc(s.nama)}</td><td>${s.kelas}</td><td>${records.length}</td><td>${hadir}</td><td>${pers}%</td></tr>`;
-      });
-
+    function renderSiswa(){
+      const students=db.siswa.map(s=>`<tr><td>${esc(s.nama)}</td><td>${esc(s.nis)}</td><td>${esc(s.kelas)}</td><td>${esc(s.ortu)}</td><td>${esc(s.kontak)}</td><td>${esc(s.alamat)}</td><td>${fmtDate(s.ttl)}</td><td><button class="btn btn-sm btn-ghost edit-siswa" data-id="${s.id}">Edit</button> <button class="btn btn-sm btn-danger delete-siswa" data-id="${s.id}">Hapus</button></td></tr>`).join('');
       return `
-        <div class="card">
-          <div class="card-head">
-            <div>
-              <h3>Rekap Kehadiran</h3>
-              <p>Filter periode</p>
-            </div>
-          </div>
-          <div class="form-grid" style="margin-bottom:16px;">
-            <div class="field"><label>Dari</label><input type="date" id="rekapFrom" value="${from}" /></div>
-            <div class="field"><label>Sampai</label><input type="date" id="rekapTo" value="${to}" /></div>
-            <div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="applyRekap">Tampilkan</button></div>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Nama Siswa</th><th>Kelas</th><th>Catatan</th><th>Hadir</th><th>%</th></tr></thead>
-              <tbody>${rows.join('') || '<tr><td colspan="5"><div class="empty">Data kosong</div></td></tr>'}</tbody>
-            </table>
-          </div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-head"><div><h3>Tambah / Edit Siswa</h3><p>Data profil siswa</p></div></div>
+        <div class="form-grid">
+          <div class="field"><label>Nama</label><input id="siswaNama" /></div>
+          <div class="field"><label>NIS</label><input id="siswaNis" /></div>
+          <div class="field"><label>Kelas</label><select id="siswaKelas">${db.kelas.map(k=>`<option value="${k.nama}">${k.nama}</option>`).join('')}</select></div>
+          <div class="field"><label>Orang Tua</label><input id="siswaOrtu" /></div>
+          <div class="field"><label>Kontak</label><input id="siswaKontak" /></div>
+          <div class="field"><label>Alamat</label><input id="siswaAlamat" /></div>
+          <div class="field"><label>Tanggal Lahir</label><input id="siswaTtl" type="date" /></div>
+          <div class="field"><label>Foto</label><input id="siswaFoto" type="url" placeholder="URL foto (opsional)" /></div>
+          <div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="saveStudentForm">Simpan</button></div>
         </div>
-      `;
+      </div>
+      <div class="card"><div class="card-head"><div><h3>Daftar Siswa</h3><p>Semua data siswa</p></div></div><div class="table-wrap"><table><thead><tr><th>Nama</th><th>NIS</th><th>Kelas</th><th>Ortu</th><th>Kontak</th><th>Alamat</th><th>Lahir</th><th>Aksi</th></tr></thead><tbody>${students}</tbody></table></div></div>`;
     }
 
-    function renderAdministrasi() {
-      const rows = db.pembayaran.map((p) => {
-        const siswa = getSiswa(p.siswaId);
-        return `
-          <tr>
-            <td>${esc(siswa?.nama || '-')}</td>
-            <td>${esc(siswa?.kelas || '-')}</td>
-            <td>${esc(p.jenis)}</td>
-            <td>${money(p.nominal)}</td>
-            <td><span class="pill ${statusClass(p.status === 'Lunas' ? 'Lunas' : 'Belum Lunas')}">${p.status}</span></td>
-          </tr>
-        `;
-      }).join('');
+    function saveStudentForm(){
+      const payload={ nama:$('#siswaNama').value.trim(), nis:$('#siswaNis').value.trim(), kelas:$('#siswaKelas').value, ortu:$('#siswaOrtu').value.trim(), kontak:$('#siswaKontak').value.trim(), alamat:$('#siswaAlamat').value.trim(), ttl:$('#siswaTtl').value, foto:$('#siswaFoto').value.trim() };
+      if(!payload.nama || !payload.nis){ toast('Nama dan NIS wajib diisi',true); return; }
+      const existing=db.siswa.find(s=>s.nis===payload.nis);
+      if(existing){ Object.assign(existing,payload); }
+      else { db.siswa.push({id:uid(), ...payload}); }
+      saveDb(); toast('Data siswa disimpan'); renderView();
+    }
+    function deleteSiswa(id){ if(confirm('Hapus siswa ini?')){ db.siswa=db.siswa.filter(s=>s.id!==id); saveDb(); renderView(); }}
+    function loadStudentForm(id){ const s=getSiswa(id); if(!s) return; $('#siswaNama').value=s.nama; $('#siswaNis').value=s.nis; $('#siswaKelas').value=s.kelas; $('#siswaOrtu').value=s.ortu||''; $('#siswaKontak').value=s.kontak||''; $('#siswaAlamat').value=s.alamat||''; $('#siswaTtl').value=s.ttl||''; $('#siswaFoto').value=s.foto||''; toast(`Mode edit siswa: ${s.nama}`); }
 
+    function renderGuru(){
+      const guruRows=db.guru.map(g=>`<tr><td>${esc(g.nama)}</td><td>${esc(g.mapel)}</td><td>${esc(g.kontak)}</td><td><span class="pill ${g.status==='Aktif'?'hadir':'izin'}">${esc(g.status||'Aktif')}</span></td><td><button class="btn btn-sm btn-ghost edit-guru" data-id="${g.id}">Edit</button> <button class="btn btn-sm btn-danger delete-guru" data-id="${g.id}">Hapus</button></td></tr>`).join('');
+      const userRows=db.users.map(u=>`<tr><td>${esc(u.u)}</td><td>${esc(u.nama)}</td><td>${u.role}</td><td><button class="btn btn-sm btn-ghost edit-user" data-id="${u.id}">Edit</button> <button class="btn btn-sm btn-danger delete-user" data-id="${u.id}">Hapus</button> <button class="btn btn-sm btn-gold" id="resetPwdBtn" data-id="${u.id}">Reset Password</button></td></tr>`).join('');
       return `
-        <div class="card">
-          <div class="card-head">
-            <div>
-              <h3>Administrasi Sekolah</h3>
-              <p>Tagihan siswa</p>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Siswa</th><th>Kelas</th><th>Jenis</th><th>Nominal</th><th>Status</th></tr></thead>
-              <tbody>${rows}</tbody>
-            </table>
-          </div>
-        </div>
-      `;
+      <div class="section-grid grid-2">
+        <div class="card"><div class="card-head"><div><h3>Tambah / Edit Guru</h3><p>Data guru</p></div></div><div class="form-grid"><div class="field"><label>Nama</label><input id="guruNama" /></div><div class="field"><label>Mapel</label><input id="guruMapel" /></div><div class="field"><label>Kontak</label><input id="guruKontak" /></div><div class="field"><label>Status</label><select id="guruStatus"><option value="Aktif">Aktif</option><option value="Nonaktif">Nonaktif</option></select></div><div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="saveGuruForm">Simpan Guru</button></div></div></div>
+        <div class="card"><div class="card-head"><div><h3>Tambah / Edit User</h3><p>Autentikasi login</p></div></div><div class="form-grid"><div class="field"><label>Username</label><input id="userU" /></div><div class="field"><label>Password</label><input id="userP" type="text" /></div><div class="field"><label>Role</label><select id="userRole"><option value="admin">admin</option><option value="guru">guru</option><option value="wali">wali</option><option value="kantin">kantin</option></select></div><div class="field"><label>Nama</label><input id="userNama" /></div><div class="field"><label>Ref</label><input id="userRef" placeholder="g1 / s1" /></div><div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="saveUserForm">Simpan User</button></div></div></div>
+      </div>
+      <div class="card" style="margin-top:16px;"><div class="card-head"><div><h3>Daftar Guru</h3><p>Kelola data pengajar</p></div></div><div class="table-wrap"><table><thead><tr><th>Nama</th><th>Mapel</th><th>Kontak</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${guruRows}</tbody></table></div></div>
+      <div class="card" style="margin-top:16px;"><div class="card-head"><div><h3>Daftar User</h3><p>Reset password / hak akses</p></div></div><div class="table-wrap"><table><thead><tr><th>Username</th><th>Nama</th><th>Role</th><th>Aksi</th></tr></thead><tbody>${userRows}</tbody></table></div></div>`;
     }
 
-    function renderKantin() {
-      const rows = db.kantin.slice().reverse().map((k) => {
-        const siswa = getSiswa(k.siswaId);
-        return `
-          <tr>
-            <td>${esc(siswa?.nama || '-')}</td>
-            <td>${esc(k.keterangan)}</td>
-            <td>${esc(k.metode)}</td>
-            <td>${fmtDate(k.tanggal)}</td>
-            <td style="color:${k.nominal < 0 ? 'var(--danger)' : 'var(--success)'}; font-weight:700;">${k.nominal < 0 ? '-' : '+'}${money(Math.abs(k.nominal))}</td>
-          </tr>
-        `;
-      }).join('');
+    function saveGuruForm(){ const payload={ nama:$('#guruNama').value.trim(), mapel:$('#guruMapel').value.trim(), kontak:$('#guruKontak').value.trim(), status:$('#guruStatus').value || 'Aktif' }; if(!payload.nama){ toast('Nama guru wajib diisi',true); return; } const existing=db.guru.find(g=>g.nama.toLowerCase()===payload.nama.toLowerCase()); if(existing){ Object.assign(existing,payload); } else { db.guru.push({id:uid(),...payload}); } saveDb(); toast('Data guru disimpan'); renderView(); }
+    function saveUserForm(){ const payload={ u:$('#userU').value.trim(), p:$('#userP').value.trim(), role:$('#userRole').value, nama:$('#userNama').value.trim(), ref:$('#userRef').value.trim()||null }; if(!payload.u || !payload.p || !payload.nama){ toast('Username, password, dan nama wajib diisi',true); return; } const existing=db.users.find(u=>u.u.toLowerCase()===payload.u.toLowerCase()); if(existing){ Object.assign(existing,payload); } else { db.users.push({id:uid(),...payload}); } saveDb(); toast('User disimpan'); renderView(); }
+    function deleteGuru(id){ if(confirm('Hapus guru ini?')){ db.guru=db.guru.filter(g=>g.id!==id); saveDb(); renderView(); } }
+    function deleteUser(id){ if(confirm('Hapus user ini?')){ db.users=db.users.filter(u=>u.id!==id); saveDb(); renderView(); } }
+    function resetPasswordUser(){ const id=event.target.dataset.id; const u=db.users.find(x=>x.id===id); if(!u) return; u.p='123456'; saveDb(); toast(`Password ${u.u} direset ke 123456`); renderView(); }
+    function loadGuruForm(id){ const g=getGuru(id); if(!g) return; $('#guruNama').value=g.nama; $('#guruMapel').value=g.mapel; $('#guruKontak').value=g.kontak||''; $('#guruStatus').value=g.status||'Aktif'; }
+    function loadUserForm(id){ const u=getUser(id); if(!u) return; $('#userU').value=u.u; $('#userP').value=u.p; $('#userRole').value=u.role; $('#userNama').value=u.nama; $('#userRef').value=u.ref||''; }
 
-      return `
-        <div class="card">
-          <div class="card-head">
-            <div>
-              <h3>Riwayat Kantin</h3>
-              <p>Semua transaksi</p>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Siswa</th><th>Keterangan</th><th>Metode</th><th>Tanggal</th><th>Nominal</th></tr></thead>
-              <tbody>${rows}</tbody>
-            </table>
-          </div>
-        </div>
-      `;
+    function renderKelas(){ const rows=db.kelas.map(k=>`<tr><td>${esc(k.nama)}</td><td>${esc(k.waliKelas)}</td><td>${k.kapasitas}</td><td><button class="btn btn-sm btn-ghost edit-kelas" data-id="${k.id}">Edit</button> <button class="btn btn-sm btn-danger delete-kelas" data-id="${k.id}">Hapus</button></td></tr>`).join(''); return `<div class="card"><div class="card-head"><div><h3>Master Kelas</h3><p>Tambah dan edit kelas</p></div></div><div class="form-grid"><div class="field"><label>Nama Kelas</label><input id="kelasNama" /></div><div class="field"><label>Wali Kelas</label><input id="kelasWali" /></div><div class="field"><label>Kapasitas</label><input id="kelasKapasitas" type="number" value="32" /></div><div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="saveKelasForm">Simpan Kelas</button></div></div></div><div class="card" style="margin-top:16px;"><div class="card-head"><div><h3>Daftar Kelas</h3><p>Semua kelas aktif</p></div></div><div class="table-wrap"><table><thead><tr><th>Kelas</th><th>Wali Kelas</th><th>Kapasitas</th><th>Aksi</th></tr></thead><tbody>${rows}</tbody></table></div></div>`; }
+    function saveKelasForm(){ const payload={ nama:$('#kelasNama').value.trim(), waliKelas:$('#kelasWali').value.trim(), kapasitas:Number($('#kelasKapasitas').value||32) }; if(!payload.nama){ toast('Nama kelas wajib diisi',true); return; } const existing=db.kelas.find(k=>k.nama.toLowerCase()===payload.nama.toLowerCase()); if(existing){ Object.assign(existing,payload); } else { db.kelas.push({id:uid(),...payload}); } saveDb(); toast('Kelas disimpan'); renderView(); }
+    function deleteKelas(id){ if(confirm('Hapus kelas ini?')){ db.kelas=db.kelas.filter(k=>k.id!==id); saveDb(); renderView(); } }
+    function loadKelasForm(id){ const k=db.kelas.find(x=>x.id===id); if(!k) return; $('#kelasNama').value=k.nama; $('#kelasWali').value=k.waliKelas; $('#kelasKapasitas').value=k.kapasitas; }
+
+    function renderMapel(){ const rows=db.mapel.map(m=>`<tr><td>${esc(m.nama)}</td><td>${esc(m.kelompok)}</td><td><button class="btn btn-sm btn-ghost edit-mapel" data-id="${m.id}">Edit</button> <button class="btn btn-sm btn-danger delete-mapel" data-id="${m.id}">Hapus</button></td></tr>`).join(''); return `<div class="card"><div class="card-head"><div><h3>Master Mata Pelajaran</h3><p>Kelola mapel sekolah</p></div></div><div class="form-grid"><div class="field"><label>Nama Mapel</label><input id="mapelNama" /></div><div class="field"><label>Kelompok</label><select id="mapelKelompok"><option value="Akademik">Akademik</option><option value="Tahfidz">Tahfidz</option><option value="Ekstrakurikuler">Ekstrakurikuler</option></select></div><div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="saveMapelForm">Simpan Mapel</button></div></div></div><div class="card" style="margin-top:16px;"><div class="card-head"><div><h3>Daftar Mapel</h3><p>Semua mata pelajaran</p></div></div><div class="table-wrap"><table><thead><tr><th>Nama</th><th>Kelompok</th><th>Aksi</th></tr></thead><tbody>${rows}</tbody></table></div></div>`; }
+    function saveMapelForm(){ const payload={ nama:$('#mapelNama').value.trim(), kelompok:$('#mapelKelompok').value }; if(!payload.nama){ toast('Nama mapel wajib diisi',true); return; } const existing=db.mapel.find(m=>m.nama.toLowerCase()===payload.nama.toLowerCase()); if(existing){ Object.assign(existing,payload); } else { db.mapel.push({id:uid(),...payload}); } saveDb(); toast('Mapel disimpan'); renderView(); }
+    function deleteMapel(id){ if(confirm('Hapus mapel ini?')){ db.mapel=db.mapel.filter(m=>m.id!==id); saveDb(); renderView(); } }
+    function loadMapelForm(id){ const m=db.mapel.find(x=>x.id===id); if(!m) return; $('#mapelNama').value=m.nama; $('#mapelKelompok').value=m.kelompok; }
+
+    function renderJadwal(){ const rows=db.jadwal.map(j=>`<tr><td>${esc(j.kelas)}</td><td>${esc(j.hari)}</td><td>${esc(j.jam)}</td><td>${esc(j.mapel)}</td><td>${esc(getGuru(j.guruId)?.nama || '-')}</td><td><button class="btn btn-sm btn-ghost edit-jadwal" data-id="${j.id}">Edit</button> <button class="btn btn-sm btn-danger delete-jadwal" data-id="${j.id}">Hapus</button></td></tr>`).join(''); return `<div class="card"><div class="card-head"><div><h3>Jadwal Pelajaran</h3><p>Validasi mapel dan kelas</p></div></div><div class="form-grid"><div class="field"><label>Kelas</label><select id="jadwalKelas">${db.kelas.map(k=>`<option value="${k.nama}">${k.nama}</option>`).join('')}</select></div><div class="field"><label>Hari</label><select id="jadwalHari"><option>Senin</option><option>Selasa</option><option>Rabu</option><option>Kamis</option><option>Jumat</option></select></div><div class="field"><label>Jam</label><input id="jadwalJam" placeholder="07:00-07:35" /></div><div class="field"><label>Mapel</label><select id="jadwalMapel">${db.mapel.map(m=>`<option value="${m.nama}">${m.nama}</option>`).join('')}</select></div><div class="field"><label>Guru</label><select id="jadwalGuru">${db.guru.map(g=>`<option value="${g.id}">${g.nama}</option>`).join('')}</select></div><div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="saveJadwalForm">Simpan Jadwal</button></div></div></div><div class="card" style="margin-top:16px;"><div class="card-head"><div><h3>Daftar Jadwal</h3><p>Relasi kelas-mapel-guru-jam</p></div></div><div class="table-wrap"><table><thead><tr><th>Kelas</th><th>Hari</th><th>Jam</th><th>Mapel</th><th>Guru</th><th>Aksi</th></tr></thead><tbody>${rows}</tbody></table></div></div>`; }
+    function saveJadwalForm(){ const payload={ kelas:$('#jadwalKelas').value, hari:$('#jadwalHari').value, jam:$('#jadwalJam').value.trim(), mapel:$('#jadwalMapel').value, guruId:$('#jadwalGuru').value }; if(!payload.jam){ toast('Jam wajib diisi',true); return; } const existing=db.jadwal.find(j=>j.kelas===payload.kelas && j.hari===payload.hari && j.jam===payload.jam); if(existing){ Object.assign(existing,payload); } else { db.jadwal.push({id:uid(),...payload}); } saveDb(); toast('Jadwal disimpan'); renderView(); }
+    function deleteJadwal(id){ if(confirm('Hapus jadwal ini?')){ db.jadwal=db.jadwal.filter(j=>j.id!==id); saveDb(); renderView(); } }
+    function loadJadwalForm(id){ const j=db.jadwal.find(x=>x.id===id); if(!j) return; $('#jadwalKelas').value=j.kelas; $('#jadwalHari').value=j.hari; $('#jadwalJam').value=j.jam; $('#jadwalMapel').value=j.mapel; $('#jadwalGuru').value=j.guruId; }
+
+    function renderAbsensiSiswa(){
+      const rows=(currentUser.role==='wali' ? db.siswa.filter(s=>s.id===currentUser.ref) : db.siswa.filter(s=>s.kelas===state.absenKelas)).map(s=>{ const rec=db.absensiSiswa.find(a=>a.tanggal===state.absenTanggal && a.siswaId===s.id); return `<tr><td>${esc(s.nama)}</td><td>${esc(s.kelas)}</td><td><span class="pill ${statusClass(rec?.status || 'Hadir')}">${rec?.status || 'Hadir'}</span></td><td><input data-sid="${s.id}" value="${esc(rec?.ket || '')}" placeholder="Keterangan" /></td></tr>`; }).join('');
+      const form=`<div class="card"><div class="form-grid"><div class="field"><label>Tanggal</label><input id="absenSiswaDate" type="date" value="${state.absenTanggal}" /></div><div class="field"><label>Kelas</label><select id="absenSiswaKelas">${db.kelas.map(k=>`<option value="${k.nama}" ${k.nama===state.absenKelas?'selected':''}>${k.nama}</option>`).join('')}</select></div><div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="saveAbsensiSiswaBtn">Simpan</button></div></div></div>`;
+      return `<div>${form}<div class="card" style="margin-top:16px;"><div class="card-head"><div><h3>Absensi Siswa per Hari</h3><p>Source of truth: kehadiaran harian dari absensi mapel dan input manual</p></div></div><div class="table-wrap"><table><thead><tr><th>Nama</th><th>Kelas</th><th>Status</th><th>Keterangan</th></tr></thead><tbody>${rows||'<tr><td colspan="4"><div class="empty">Belum ada siswa</div></td></tr>'}</tbody></table></div></div></div>`;
+    }
+    function saveAbsensiSiswa(){ const tanggal=$('#absenSiswaDate').value || today(); state.absenTanggal=tanggal; const rows=$$('input[data-sid]'); rows.forEach(inp=>{ const sid=inp.dataset.sid; const status=inp.closest('tr').querySelector('span.pill') ? inp.closest('tr').querySelector('span.pill').textContent : 'Hadir'; const ket=inp.value.trim(); db.absensiSiswa=db.absensiSiswa.filter(a=>!(a.tanggal===tanggal && a.siswaId===sid)); db.absensiSiswa.push({id:uid(),tanggal,siswaId:sid,status,status==='Hadir'?'Hadir':status,ket}); }); saveDb(); toast('Absensi siswa disimpan'); renderView(); }
+
+    function renderAbsensiGuru(){
+      const rows=(currentUser.role==='guru' ? db.guru.filter(g=>g.id===currentUser.ref) : db.guru).map(g=>{ const rec=db.absensiGuru.find(a=>a.tanggal===state.absenTanggal && a.guruId===g.id); return `<tr><td>${esc(g.nama)}</td><td>${esc(g.mapel)}</td><td><select data-gid="${g.id}"><option ${rec?.status==='Hadir'?'selected':''}>Hadir</option><option ${rec?.status==='Terlambat'?'selected':''}>Terlambat</option><option ${rec?.status==='Izin'?'selected':''}>Izin</option></select></td><td><input data-jam="${g.id}" value="${esc(rec?.jamDatang || '')}" /></td><td><input data-ket="${g.id}" value="${esc(rec?.ket || '')}" /></td></tr>`; }).join('');
+      return `<div class="card"><div class="card-head"><div><h3>Absensi Guru</h3><p>Data kehadiran pengajar</p></div></div><div class="form-grid"><div class="field"><label>Tanggal</label><input id="absenGuruDate" type="date" value="${state.absenTanggal}" /></div><div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="saveAbsensiGuruBtn">Simpan</button></div></div><div class="table-wrap" style="margin-top:16px;"><table><thead><tr><th>Nama</th><th>Mapel / Jabatan</th><th>Status</th><th>Jam Datang</th><th>Keterangan</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+    }
+    function saveAbsensiGuru(){ const tanggal=$('#absenGuruDate').value || today(); state.absenTanggal=tanggal; $$('select[data-gid]').forEach(sel=>{ const gid=sel.dataset.gid; const status=sel.value; const jam=document.querySelector(`input[data-jam="${gid}"]`)?.value||''; const ket=document.querySelector(`input[data-ket="${gid}"]`)?.value||''; db.absensiGuru=db.absensiGuru.filter(a=>!(a.tanggal===tanggal && a.guruId===gid)); db.absensiGuru.push({id:uid(),tanggal,guruId:gid,status,jamDatang:jam,ket}); }); saveDb(); toast('Absensi guru disimpan'); renderView(); }
+
+    function renderRekap(){ const rows=db.siswa.map(s=>{ const records=db.absensiSiswa.filter(a=>a.siswaId===s.id && a.tanggal>=state.dateFrom && a.tanggal<=state.dateTo); const hadir=records.filter(a=>a.status==='Hadir').length; const pct=records.length ? Math.round((hadir/records.length)*100) : 0; return `<tr><td>${esc(s.nama)}</td><td>${esc(s.kelas)}</td><td>${records.length}</td><td>${hadir}</td><td>${pct}%</td></tr>`; }).join(''); return `<div class="card"><div class="card-head"><div><h3>Rekap Kehadiran</h3><p>Per siswa</p></div></div><div class="form-grid"><div class="field"><label>Dari</label><input id="rekapFrom" type="date" value="${state.dateFrom}" /></div><div class="field"><label>Sampai</label><input id="rekapTo" type="date" value="${state.dateTo}" /></div><div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="applyRekap">Tampilkan</button></div></div><div class="table-wrap" style="margin-top:16px;"><table><thead><tr><th>Nama</th><th>Kelas</th><th>Catatan</th><th>Hadir</th><th>%</th></tr></thead><tbody>${rows||'<tr><td colspan="5"><div class="empty">Data kosong</div></td></tr>'}</tbody></table></div></div>`; }
+
+    function renderKasir(){
+      const siswaOptions=db.siswa.map(s=>`<option value="${s.id}">${esc(s.nama)} • ${s.kelas}</option>`).join('');
+      const produkOptions=db.produk.map(p=>`<option value="${p.id}">${esc(p.nama)} • ${money(p.harga)}</option>`).join('');
+      return `<div class="section-grid grid-2"><div class="card"><div class="card-head"><div><h3>Transaksi Kasir</h3><p>Input penjualan</p></div></div><div class="form-grid"><div class="field"><label>Siswa</label><select id="kasirSiswa">${siswaOptions}</select></div><div class="field"><label>Produk</label><select id="kasirProduk">${produkOptions}</select></div><div class="field"><label>Metode</label><select id="kasirMetode"><option>Saldo</option><option>Top Up</option></select></div><div class="field"><label>Jumlah</label><input id="kasirQty" type="number" min="1" value="1" /></div><div class="field" style="grid-column:1/-1;"><button class="btn btn-primary full" id="saveKasirBtn">Simpan Transaksi</button></div></div></div><div class="card"><div class="card-head"><div><h3>Saldo Siswa</h3><p>Ringkasan hari ini</p></div></div><div class="list">${db.siswa.slice(0,6).map(s=>`<div class="list-item"><div><div class="list-title">${esc(s.nama)}</div><div class="list-meta">${s.kelas}</div></div><strong>${money(saldoSiswa(s.id))}</strong></div>`).join('')}</div></div></div>`;
+    }
+    function saveKasir(){ const siswaId=$('#kasirSiswa').value; const produkId=$('#kasirProduk').value; const metode=$('#kasirMetode').value; const qty=Number($('#kasirQty').value||1); const product=db.produk.find(p=>p.id===produkId); if(!product){ toast('Produk tidak ditemukan',true); return; } const total=product.harga * qty; const valid=validasiBelanja(siswaId,total,metode); if(!valid.ok){ toast(valid.msg,true); return; } db.kantin.push({id:uid(),siswaId,tanggal:today(),waktu:new Date().toTimeString().slice(0,8),keterangan:`${qty} x ${product.nama}`,nominal:metode==='Top Up'?total:-total,metode:metode==='Top Up'?'Top Up':'Saldo'}); if(typeof product.stok==='number'){ product.stok = Math.max(0, Number(product.stok) - qty); } saveDb(); toast('Transaksi kasir disimpan'); renderView(); }
+
+    function renderProduk(){ const rows=db.produk.map(p=>`<tr><td>${esc(p.nama)}</td><td>${esc(p.kode)}</td><td>${money(p.harga)}</td><td>${p.stok ?? 0}</td><td><button class="btn btn-sm btn-ghost edit-produk" data-id="${p.id}">Edit</button> <button class="btn btn-sm btn-danger delete-produk" data-id="${p.id}">Hapus</button></td></tr>`).join(''); return `<div class="card"><div class="card-head"><div><h3>Produk Kantin</h3><p>Tambah, edit, hapus</p></div></div><div class="form-grid"><div class="field"><label>Nama Produk</label><input id="produkNama" /></div><div class="field"><label>Kode</label><input id="produkKode" /></div><div class="field"><label>Harga</label><input id="produkHarga" type="number" /></div><div class="field"><label>Stok</label><input id="produkStok" type="number" value="50" /></div><div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="saveProdukForm">Simpan Produk</button></div></div></div><div class="card" style="margin-top:16px;"><div class="card-head"><div><h3>Daftar Produk</h3><p>Semua item kantin</p></div></div><div class="table-wrap"><table><thead><tr><th>Nama</th><th>Kode</th><th>Harga</th><th>Stok</th><th>Aksi</th></tr></thead><tbody>${rows}</tbody></table></div></div>`; }
+    function saveProdukForm(){ const payload={ nama:$('#produkNama').value.trim(), kode:$('#produkKode').value.trim(), harga:Number($('#produkHarga').value||0), stok:Number($('#produkStok').value||0) }; if(!payload.nama || !payload.kode){ toast('Nama dan kode produk wajib diisi',true); return; } const existing=db.produk.find(p=>p.kode.toLowerCase()===payload.kode.toLowerCase()); if(existing){ Object.assign(existing,payload); } else { db.produk.push({id:uid(),...payload}); } saveDb(); toast('Produk disimpan'); renderView(); }
+    function deleteProduk(id){ if(confirm('Hapus produk ini?')){ db.produk=db.produk.filter(p=>p.id!==id); saveDb(); renderView(); } }
+    function loadProdukForm(id){ const p=db.produk.find(x=>x.id===id); if(!p) return; $('#produkNama').value=p.nama; $('#produkKode').value=p.kode; $('#produkHarga').value=p.harga; $('#produkStok').value=p.stok ?? 0; }
+
+    function renderImport(){
+      return `<div class="card"><div class="card-head"><div><h3>Impor Massal Siswa dari Excel / CSV</h3><p>Format kolom: nama,nis,kelas,ortu,kontak,alamat,ttl</p></div></div><div class="form-grid"><div class="field"><label>Upload File</label><input id="csvFile" type="file" accept=".csv,.txt" class="hidden" /><button class="btn btn-primary" id="importCsvBtn">Pilih CSV</button></div></div><div style="margin-top:14px; color:var(--muted);">Contoh CSV:<br><code>nama,nis,kelas,ortu,kontak,alamat,ttl<br>Ahmad Fauzan,2425001,1A,Bapak Hasan,0812...,Jl. Tegir,2017-03-12</code></div></div>`; }
+    function handleCsvImport(e){ const file=e.target.files&&e.target.files[0]; if(!file){ return; } const reader=new FileReader(); reader.onload=()=>{ const text=String(reader.result||''); const rows=text.split(/\r?\n/).map(r=>r.trim()).filter(Boolean); if(rows.length<2){ toast('CSV kosong atau tidak valid',true); return; } const header=rows[0].split(',').map(v=>v.trim().toLowerCase()); const newStudents=[]; for(let i=1;i<rows.length;i++){ const cols=rows[i].split(',').map(v=>v.trim()); const obj={}; header.forEach((h,idx)=>obj[h]= (cols[idx] || '').trim()); if(!obj.nama || !obj.nis) continue; newStudents.push({id:uid(), nama:obj.nama, nis:obj.nis, kelas:obj.kelas||'1A', ortu:obj.ortu||'', kontak:obj.kontak||'', alamat:obj.alamat||'', ttl:obj.ttl||'', foto:''}); }
+      if(!newStudents.length){ toast('Tidak ada siswa yang bisa diimpor',true); return; }
+      db.siswa.push(...newStudents); saveDb(); toast(`${newStudents.length} siswa berhasil diimpor`); renderView(); };
+      reader.readAsText(file);
     }
 
-    function renderQrBarang() {
-      const cards = db.produk.map((p) => `
-        <div class="qr-card-box">
-          <div class="qr-box">${qrSvg(`${p.kode}`)}</div>
-          <div class="qr-name">${esc(p.nama)}</div>
-          <div class="qr-code">${esc(p.kode)} • ${money(p.harga)}</div>
-        </div>
-      `).join('');
-
-      return `
-        <div class="card">
-          <div class="card-head">
-            <div>
-              <h3>Daftar QR Barang Kantin</h3>
-              <p>Gunakan untuk kasir</p>
-            </div>
-          </div>
-          <div class="qr-grid">${cards}</div>
-        </div>
-      `;
+    function renderYear(){
+      const rows=db.years.map(y=>`<tr><td>${esc(y.nama)}</td><td>${esc(y.semester)}</td><td><span class="pill ${y.status==='Aktif'?'hadir':'izin'}">${esc(y.status)}</span></td><td><button class="btn btn-sm btn-ghost" onclick="alert('Edit mode demo belum dipasang')">Edit</button></td></tr>`).join('');
+      return `<div class="card"><div class="card-head"><div><h3>Manajemen Tahun Ajaran & Semester</h3><p>Atur periode aktif</p></div></div><div class="form-grid"><div class="field"><label>Tahun Ajaran</label><input id="yearName" /></div><div class="field"><label>Semester</label><select id="yearSemester"><option>Ganjil</option><option>Genap</option></select></div><div class="field"><label>Status</label><select id="yearStatus"><option>Aktif</option><option>Nonaktif</option></select></div><div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="saveYearForm">Simpan</button></div></div></div><div class="card" style="margin-top:16px;"><div class="card-head"><div><h3>Daftar Tahun Ajaran</h3><p>Histori aktif & arsip</p></div></div><div class="table-wrap"><table><thead><tr><th>Tahun</th><th>Semester</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
     }
+    function saveYearForm(){ const payload={nama:$('#yearName').value.trim(), semester:$('#yearSemester').value, status:$('#yearStatus').value}; if(!payload.nama){ toast('Tahun ajaran wajib diisi',true); return; } db.years=db.years.map(y=>({ ...y, status: y.status==='Aktif' ? 'Nonaktif':'Nonaktif'})); db.years.push({id:uid(),...payload}); saveDb(); toast('Tahun ajaran dimasukkan'); renderView(); }
 
-    function renderCapaian() {
-      const siswa = db.siswa.filter((s) => s.id === state.capaianSiswa || s.id === currentUser.ref || !currentUser.ref);
-      const options = db.siswa.map((s) => `<option value="${s.id}" ${s.id === state.capaianSiswa ? 'selected' : ''}>${esc(s.nama)} • ${s.kelas}</option>`).join('');
-      const rows = db.capaian.filter((c) => c.siswaId === (state.capaianSiswa || currentUser.ref || db.siswa[0].id)).map((c) => `
-        <tr>
-          <td>${esc(c.mapel)}</td>
-          <td>${esc(c.materi)}</td>
-          <td>${c.nilai}</td>
-          <td>${esc(c.catatan)}</td>
-        </tr>
-      `).join('');
+    function renderNotifikasi(){
+      const rows=db.notifications.map(n=>`<tr><td>${esc(n.judul)}</td><td>${esc(n.pesan)}</td><td><span class="pill ${n.jenis==='danger'?'belum':n.jenis==='warning'?'late':'izin'}">${esc(n.jenis)}</span></td><td>${fmtDate(n.tanggal)}</td><td><button class="btn btn-sm btn-danger clear-notif" data-id="${n.id}">Hapus</button></td></tr>`).join('');
+      return `<div class="card"><div class="card-head"><div><h3>Notifikasi Orang Tua & Guru</h3><p>Kontak dan reminder</p></div></div><div class="toolbar" style="margin-bottom:12px;">
+          <button class="btn btn-ghost send-notif" data-type="warning" data-msg="Saldo kantin menipis, segera isi ulang." data-target="Semua Wali">Peringatan Saldo</button>
+          <button class="btn btn-ghost send-notif" data-type="danger" data-msg="SPP bulan ini belum dibayar." data-target="Semua Wali">Tagihan SPP</button>
+          <button class="btn btn-ghost send-notif" data-type="info" data-msg="Nilai baru masuk untuk siswa." data-target="Semua Wali">Nilai Baru</button>
+      </div><div class="table-wrap"><table><thead><tr><th>Judul</th><th>Pesan</th><th>Jenis</th><th>Tanggal</th><th>Aksi</th></tr></thead><tbody>${rows}</tbody></table></div></div>`; }
 
-      return `
-        <div class="card">
-          <div class="card-head">
-            <div>
-              <h3>Capaian Belajar</h3>
-              <p>Per siswa</p>
-            </div>
-          </div>
-          <div class="field" style="margin-bottom:16px; max-width:300px;">
-            <label>Pilih Siswa</label>
-            <select id="capaianSelect">${options}</select>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Mapel</th><th>Materi</th><th>Nilai</th><th>Catatan</th></tr></thead>
-              <tbody>${rows || '<tr><td colspan="4"><div class="empty">Belum ada capaian</div></td></tr>'}</tbody>
-            </table>
-          </div>
-        </div>
-      `;
+    function renderLaporan(){
+      const sales=db.kantin.filter(k=>k.nominal<0).reduce((sum,k)=>sum+Math.abs(Number(k.nominal||0)),0); const unpaid=db.pembayaran.filter(p=>p.status==='Belum Lunas').length; const avg = db.capaian.length ? Math.round(db.capaian.reduce((sum,c)=>sum+Number(c.nilai||0),0)/db.capaian.length) : 0;
+      return `<div class="section-grid grid-3"><div class="stat"><div class="stat-label">Penjualan</div><div class="stat-value">${money(sales)}</div><div class="stat-hint">Total kantin</div></div><div class="stat gold"><div class="stat-label">Tagihan</div><div class="stat-value">${unpaid}</div><div class="stat-hint">Belum lunas</div></div><div class="stat"><div class="stat-label">Rata-Rata Nilai</div><div class="stat-value">${avg}</div><div class="stat-hint">Capaian siswa</div></div></div><div class="card" style="margin-top:16px;"><div class="card-head"><div><h3>Export / Laporan</h3><p>Ringkasan statistik</p></div></div><div class="toolbar"><button class="btn btn-primary" onclick="downloadJson()">Export JSON</button><button class="btn btn-ghost" onclick="window.print()">Print Laporan</button></div></div>`; }
+    function downloadJson(){ const payload={ db, exportedAt: new Date().toISOString() }; const blob=new Blob([JSON.stringify(payload,null,2)], {type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='sdu-assunniyyah-export.json'; a.click(); URL.revokeObjectURL(a.href); }
+
+    function init(){
+      const user=getSessionUser(); if(user){ currentUser=user; currentView='dashboard'; renderApp(); } else { renderLogin(); }
     }
+    function getSessionUser(){ const raw=safeParse(sessionStorage.getItem(SESSION_KEY), null); if(!raw||!raw.u) return null; return db.users.find(u=>u.u===raw.u && u.role===raw.role) || null; }
 
-    function renderKasir() {
-      const siswaOptions = db.siswa.map((s) => `<option value="${s.id}">${esc(s.nama)} • ${s.kelas}</option>`).join('');
-      const produkOptions = db.produk.map((p) => `<option value="${p.id}">${esc(p.nama)} • ${money(p.harga)}</option>`).join('');
-      return `
-        <div class="section-grid grid-2">
-          <div class="card">
-            <div class="card-head">
-              <div><h3>Transaksi Kasir</h3><p>Penjualan produk</p></div>
-            </div>
-            <div class="form-grid">
-              <div class="field"><label>Siswa</label><select id="kasirSiswa">${siswaOptions}</select></div>
-              <div class="field"><label>Produk</label><select id="kasirProduk">${produkOptions}</select></div>
-              <div class="field"><label>Metode</label><select id="kasirMetode"><option>Saldo</option><option>Top Up</option></select></div>
-              <div class="field"><label>Jumlah</label><input id="kasirQty" type="number" min="1" value="1" /></div>
-              <div class="field" style="grid-column: 1 / -1;"><button class="btn btn-primary full" id="saveKasirTrx">Simpan Transaksi</button></div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-head">
-              <div><h3>Ringkasan Hari Ini</h3><p>Saldo & transaksi</p></div>
-            </div>
-            <div class="list">
-              ${db.siswa.slice(0, 4).map((s) => `
-                <div class="list-item">
-                  <div>
-                    <div class="list-title">${esc(s.nama)}</div>
-                    <div class="list-meta">${s.kelas}</div>
-                  </div>
-                  <strong>${money(saldoSiswa(s.id))}</strong>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        </div>
-      `;
-    }
+    document.addEventListener('click', (e)=>{
+      if(e.target && e.target.id==='saveAbsensiSiswaBtn'){ saveAbsensiSiswa(); }
+      if(e.target && e.target.id==='saveAbsensiGuruBtn'){ saveAbsensiGuru(); }
+      if(e.target&&e.target.id==='saveYearForm'){ saveYearForm(); }
+      if(e.target && e.target.id==='saveStudentForm'){ saveStudentForm(); }
+      if(e.target && e.target.id==='saveGuruForm'){ saveGuruForm(); }
+      if(e.target && e.target.id==='saveUserForm'){ saveUserForm(); }
+      if(e.target && e.target.id==='saveKelasForm'){ saveKelasForm(); }
+      if(e.target && e.target.id==='saveMapelForm'){ saveMapelForm(); }
+      if(e.target && e.target.id==='saveJadwalForm'){ saveJadwalForm(); }
+      if(e.target && e.target.id==='saveProdukForm'){ saveProdukForm(); }
+      if(e.target && e.target.id==='importCsvBtn'){ $('#csvFile').click(); }
+      if(e.target && e.target.id==='resetPwdBtn'){ resetPasswordUser(); }
+    });
 
-    function init() {
-      const savedUser = getSessionUser();
-      currentUser = savedUser;
-      if (currentUser) {
-        currentView = 'dashboard';
-        renderApp();
-      } else {
-        renderLogin();
-      }
+    document.addEventListener('change',(e)=>{
+      if(e.target && e.target.id==='csvFile'){ handleCsvImport(e); }
+      if(e.target && e.target.id==='capaianSelect'){ state.capaianSiswa=e.target.value; renderView(); }
+      if(e.target && e.target.id==='absenSiswaDate'){ state.absenTanggal=e.target.value || today(); }
+      if(e.target && e.target.id==='absenSiswaKelas'){ state.absenKelas=e.target.value; renderView(); }
+      if(e.target && e.target.id==='absenGuruDate'){ state.absenTanggal=e.target.value || today(); }
+      if(e.target && e.target.id==='rekapFrom'){ state.dateFrom=e.target.value || dayBack(30); }
+      if(e.target && e.target.id==='rekapTo'){ state.dateTo=e.target.value || today(); }
+    });
 
-      document.addEventListener('change', (e) => {
-        if (e.target && e.target.id === 'capaianSelect') {
-          state.capaianSiswa = e.target.value;
-          renderTampilan();
-        }
-        if (e.target && e.target.id === 'rekapFrom') state.dateFrom = e.target.value || dayBack(30);
-        if (e.target && e.target.id === 'rekapTo') state.dateTo = e.target.value || today();
-        if (e.target && e.target.id === 'applyRekap') {
-          if (state.dateFrom && state.dateTo && state.dateFrom > state.dateTo) {
-            toast('Rentang tanggal tidak valid', true);
-            return;
-          }
-          renderTampilan();
-        }
-      });
-    }
+    document.addEventListener('click', e=>{
+      const t=e.target.closest('.edit-siswa'); if(t){ loadStudentForm(t.dataset.id); }
+      const u=e.target.closest('.edit-guru'); if(u){ loadGuruForm(u.dataset.id); }
+      const v=e.target.closest('.edit-user'); if(v){ loadUserForm(v.dataset.id); }
+      const w=e.target.closest('.edit-kelas'); if(w){ loadKelasForm(w.dataset.id); }
+      const x=e.target.closest('.edit-mapel'); if(x){ loadMapelForm(x.dataset.id); }
+      const y=e.target.closest('.edit-jadwal'); if(y){ loadJadwalForm(y.dataset.id); }
+      const z=e.target.closest('.edit-produk'); if(z){ loadProdukForm(z.dataset.id); }
+      const d1=e.target.closest('.delete-siswa'); if(d1 && confirm('Hapus siswa ini?')){ db.siswa=db.siswa.filter(s=>s.id!==d1.dataset.id); saveDb(); renderView(); }
+      const d2=e.target.closest('.delete-guru'); if(d2 && confirm('Hapus guru ini?')){ db.guru=db.guru.filter(g=>g.id!==d2.dataset.id); saveDb(); renderView(); }
+      const d3=e.target.closest('.delete-user'); if(d3 && confirm('Hapus user ini?')){ db.users=db.users.filter(u=>u.id!==d3.dataset.id); saveDb(); renderView(); }
+      const d4=e.target.closest('.delete-kelas'); if(d4 && confirm('Hapus kelas ini?')){ db.kelas=db.kelas.filter(k=>k.id!==d4.dataset.id); saveDb(); renderView(); }
+      const d5=e.target.closest('.delete-mapel'); if(d5 && confirm('Hapus mapel ini?')){ db.mapel=db.mapel.filter(m=>m.id!==d5.dataset.id); saveDb(); renderView(); }
+      const d6=e.target.closest('.delete-jadwal'); if(d6 && confirm('Hapus jadwal ini?')){ db.jadwal=db.jadwal.filter(j=>j.id!==d6.dataset.id); saveDb(); renderView(); }
+      const d7=e.target.closest('.delete-produk'); if(d7 && confirm('Hapus produk ini?')){ db.produk=db.produk.filter(p=>p.id!==d7.dataset.id); saveDb(); renderView(); }
+      const n=e.target.closest('.send-notif'); if(n){ triggerNotification(n.dataset.type, n.dataset.msg, n.dataset.target); }
+      const c=e.target.closest('.clear-notif'); if(c){ db.notifications=db.notifications.filter(nf=>nf.id!==c.dataset.id); saveDb(); renderView(); }
+      const r=e.target.closest('#resetPwdBtn'); if(r){ const uid=r.dataset.id; const u=db.users.find(x=>x.id===uid); if(u){ u.p='123456'; saveDb(); toast(`Password ${u.u} direset ke 123456`); renderView(); } }
+    });
 
     init();
   </script>
