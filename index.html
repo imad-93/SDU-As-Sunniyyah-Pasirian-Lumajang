@@ -45,7 +45,6 @@
     .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;align-items:end}
     .list{display:grid;gap:10px}.list-item{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #edf1ef;padding-bottom:8px}.list-item:last-child{border-bottom:none;padding-bottom:0}.list-title{font-weight:700}.list-meta{font-size:.72rem;color:var(--muted);margin-top:3px}
     .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.space-between{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.badge{display:inline-flex;align-items:center;gap:6px;background:var(--primary-soft);color:var(--primary);padding:5px 8px;border-radius:999px;font-size:.7rem;font-weight:700}
-    .qr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}.qr-card-box{border:1px dashed #9cb0a4;border-radius:12px;padding:12px;background:white;text-align:center}.qr-card-box svg{max-width:100%;height:auto}
     .toast{position:fixed;right:18px;bottom:18px;background:var(--primary);color:white;border-radius:12px;box-shadow:0 12px 28px rgba(11,107,58,.25);padding:11px 16px;font-size:.8rem;font-weight:700;z-index:1000}.toast.err{background:#b92d2d}
     .muted{color:var(--muted)}
     @media (max-width:900px){.app{display:block}.sidebar{width:100%;height:auto;position:static;padding:12px}.nav{flex-direction:row;flex-wrap:wrap}.nav-btn{width:auto;flex:1 1 auto}.topbar{padding:12px 16px}.content-shell{padding:16px}.grid-4,.grid-3,.grid-2{grid-template-columns:1fr}}
@@ -87,19 +86,10 @@
 
     function isWithinScanWindow(jadwalEntry, actualTime){
       const raw = jadwalEntry && (jadwalEntry.jam || `${jadwalEntry.jamMulai}-${jadwalEntry.jamSelesai}`);
-      const [start, end] = String(raw || '07:00-07:35').split('-');
+      const [start] = String(raw || '07:00-07:35').split('-');
       const startMin = parseTime(start || '07:00');
       const actualMin = parseTime(actualTime || '07:00');
       return Math.abs(actualMin - startMin) <= 15;
-    }
-
-    function computeDailyStatus(studentId, tanggal){
-      const override = db.absensiSiswa.find(a => a.siswaId === studentId && a.tanggal === tanggal);
-      if (override && override.status && ['Hadir','Izin','Sakit','Alpa','Terlambat'].includes(override.status)) return override.status;
-      const lessonRows = db.absensiMapel.filter(r => r.siswaId === studentId && r.tanggal === tanggal);
-      if (lessonRows.length === 0) return 'Alpa';
-      const hadir = lessonRows.filter(r => r.status === 'Hadir').length;
-      return hadir > 0 ? 'Hadir' : 'Alpa';
     }
 
     function addNotification(title, message, type='info'){ db.notifications.unshift({ id: uid(), judul: title, pesan: message, jenis: type, tanggal: today() }); saveDb(); }
@@ -142,7 +132,7 @@
           {id:'m6',nama:'PJOK',kelompok:'Akademik'}
         ],
         jadwal:[
-          {id:'j1',kelas:'1A',hari:'Senin',jam:'07:00-07:35',jamMulai:'07:00',jamSelesai:'07:35',mapelId:'m1',mapel:'Al-Qur\'an (Tahfidz)',guruId:'g5'},
+          {id:'j1',kelas:'1A',hari:'Senin',jam:'07:00-07:35',jamMulai:'07:00',jamSelesai:'07:35',mapelId:'m1',mapel:"Al-Qur'an (Tahfidz)",guruId:'g5'},
           {id:'j2',kelas:'1A',hari:'Senin',jam:'07:35-08:10',jamMulai:'07:35',jamSelesai:'08:10',mapelId:'m4',mapel:'Matematika',guruId:'g1'},
           {id:'j3',kelas:'1A',hari:'Senin',jam:'08:10-08:45',jamMulai:'08:10',jamSelesai:'08:45',mapelId:'m3',mapel:'Bahasa Indonesia',guruId:'g1'},
           {id:'j4',kelas:'2A',hari:'Senin',jam:'07:00-07:35',jamMulai:'07:00',jamSelesai:'07:35',mapelId:'m4',mapel:'Matematika',guruId:'g2'}
@@ -239,7 +229,8 @@
     const db=loadDb();
     let currentUser=null; let currentView='dashboard';
     const state={
-      absenTanggal: today(), absenKelas: '1A', dateFrom: dayBack(30), dateTo: today(), capaianSiswa:'s1', notifFilter:'all'
+      absenTanggal: today(), absenKelas: '1A', dateFrom: dayBack(30), dateTo: today(), capaianSiswa:'s1', notifFilter:'all',
+      editingStudentId:null, editingGuruId:null, editingUserId:null, editingKelasId:null, editingMapelId:null, editingJadwalId:null, editingProdukId:null
     };
 
     function saveDb(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); }
@@ -256,6 +247,9 @@
 
     function qrSvg(text){
       try {
+        if (typeof qrcode !== 'function') {
+          return `<div style="padding:8px;font-size:10px;color:#b4252a;">QR library unavailable</div>`;
+        }
         const q = qrcode(0,'M'); q.addData(text); q.make(); const n=q.getModuleCount(); let path='';
         for(let y=0;y<n;y++){ for(let x=0;x<n;x++){ if(q.isDark(y,x)) path += `M${x},${y}h1v1h-1z`; } }
         return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 ${n+4} ${n+4}" shape-rendering="crispEdges"><rect x="-2" y="-2" width="${n+4}" height="${n+4}" fill="#fff" /><path d="${path}" fill="#111" /></svg>`;
@@ -293,7 +287,7 @@
       if(!currentUser){ renderLogin(); return; }
       const labels={dashboard:'Dashboard', siswa:'Data Siswa', guru:'Manajemen Guru & User', kelas:'Master Kelas', mapel:'Master Mapel', jadwal:'Jadwal Pelajaran', rekap:'Rekap Kehadiran', absensi:'Absensi Siswa', absensiGuru:'Absensi Guru', kasir:'Kasir', produk:'Produk Kantin', import:'Impor Siswa', tahun:'Tahun Ajaran', notifikasi:'Notifikasi', laporan:'Laporan'};
       const icons={dashboard:'🏠', siswa:'🧑‍🎓', guru:'👨‍🏫', kelas:'🏫', mapel:'📘', jadwal:'🗓️', rekap:'📊', absensi:'✅', absensiGuru:'🧾', kasir:'🧾', produk:'🏷️', import:'📥', tahun:'📚', notifikasi:'🔔', laporan:'📈'};
-      const navs={admin:['dashboard','siswa','guru','kelas','mapel','jadwal','absensi','absensiGuru','rekap','kasir','produk','import','tahun','notifikasi','laporan'], guru:['dashboard','absensi','absensiGuru','rekap','tahun'], wali:['dashboard','absensi','rekap'], kantin:['dashboard','kasir','produk','laporan']};
+      const navs={admin:['dashboard','siswa','guru','kelas','mapel','jadwal','absensi','absensiGuru','rekap','kasir','produk','import','tahun','notifikasi','laporan'], guru:['dashboard','absensi','absensiGuru','rekap'], wali:['dashboard','absensi','rekap'], kantin:['dashboard','kasir','produk','laporan']};
       const items=navs[currentUser.role]||['dashboard'];
       const initials=(currentUser.nama||'').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
       $('#app').innerHTML=`
@@ -346,7 +340,6 @@
       $('#saveAbsensiSiswaBtn')?.addEventListener('click',saveAbsensiSiswa);
       $('#saveAbsensiGuruBtn')?.addEventListener('click',saveAbsensiGuru);
       $('#saveKasirBtn')?.addEventListener('click',saveKasir);
-      $('#resetPwdBtn')?.addEventListener('click',resetPasswordUser);
       $('#capaianSelect')?.addEventListener('change', e=>{ state.capaianSiswa=e.target.value; renderView(); });
       $$('.delete-siswa').forEach(btn=>btn.addEventListener('click',()=>deleteSiswa(btn.dataset.id)));
       $$('.delete-guru').forEach(btn=>btn.addEventListener('click',()=>deleteGuru(btn.dataset.id)));
@@ -364,7 +357,6 @@
       $$('.edit-produk').forEach(btn=>btn.addEventListener('click',()=>loadProdukForm(btn.dataset.id)));
       $$('.send-notif').forEach(btn=>btn.addEventListener('click',()=>triggerNotification(btn.dataset.type, btn.dataset.msg, btn.dataset.target)));
       $$('.clear-notif').forEach(btn=>btn.addEventListener('click',()=>{ db.notifications=db.notifications.filter(n=>n.id!==btn.dataset.id); saveDb(); renderView(); }));
-      $$('.save-scan').forEach(btn=>btn.addEventListener('click',()=>saveLessonScan(btn.dataset.date, btn.dataset.kelas, btn.dataset.jam)));
     }
 
     function renderDashboard(){
@@ -434,17 +426,22 @@
     function saveStudentForm(){
       const payload={ nama:$('#siswaNama').value.trim(), nis:$('#siswaNis').value.trim(), kelas:$('#siswaKelas').value, ortu:$('#siswaOrtu').value.trim(), kontak:$('#siswaKontak').value.trim(), alamat:$('#siswaAlamat').value.trim(), foto:$('#siswaFoto').value.trim(), ttl:$('#siswaTtl').value };
       if(!payload.nama || !payload.nis){ toast('Nama dan NIS wajib diisi',true); return; }
-      const existing=db.siswa.find(s=>s.nis===payload.nis);
-      if(existing){ Object.assign(existing,payload); }
-      else { db.siswa.push({id:uid(), ...payload}); }
+      const targetId = state.editingStudentId || db.siswa.find(s=>s.nis===payload.nis)?.id;
+      if(targetId){
+        const idx=db.siswa.findIndex(s=>s.id===targetId);
+        if(idx>=0){ db.siswa[idx]={...db.siswa[idx], ...payload}; }
+      } else {
+        db.siswa.push({id:uid(), ...payload});
+      }
+      state.editingStudentId=null;
       saveDb(); toast('Data siswa disimpan'); renderView();
     }
     function deleteSiswa(id){ if(confirm('Hapus siswa ini?')){ db.siswa=db.siswa.filter(s=>s.id!==id); saveDb(); renderView(); } }
-    function loadStudentForm(id){ const s=getSiswa(id); if(!s) return; $('#siswaNama').value=s.nama; $('#siswaNis').value=s.nis; $('#siswaKelas').value=s.kelas; $('#siswaOrtu').value=s.ortu||''; $('#siswaKontak').value=s.kontak||''; $('#siswaAlamat').value=s.alamat||''; $('#siswaTtl').value=s.ttl||''; $('#siswaFoto').value=s.foto||''; }
+    function loadStudentForm(id){ state.editingStudentId=id; const s=getSiswa(id); if(!s) return; $('#siswaNama').value=s.nama; $('#siswaNis').value=s.nis; $('#siswaKelas').value=s.kelas; $('#siswaOrtu').value=s.ortu||''; $('#siswaKontak').value=s.kontak||''; $('#siswaAlamat').value=s.alamat||''; $('#siswaTtl').value=s.ttl||''; $('#siswaFoto').value=s.foto||''; }
 
     function renderGuru(){
       const guruRows=db.guru.map(g=>`<tr><td>${esc(g.nama)}</td><td>${esc(g.mapel)}</td><td>${esc(g.kontak)}</td><td><span class="pill ${g.status==='Aktif'?'hadir':'izin'}">${esc(g.status||'Aktif')}</span></td><td><button class="btn btn-sm btn-ghost edit-guru" data-id="${g.id}">Edit</button> <button class="btn btn-sm btn-danger delete-guru" data-id="${g.id}">Hapus</button></td></tr>`).join('');
-      const userRows=db.users.map(u=>`<tr><td>${esc(u.u)}</td><td>${esc(u.nama)}</td><td>${u.role}</td><td><button class="btn btn-sm btn-ghost edit-user" data-id="${u.id}">Edit</button> <button class="btn btn-sm btn-danger delete-user" data-id="${u.id}">Hapus</button> <button class="btn btn-sm btn-gold" id="resetPwdBtn" data-id="${u.id}">Reset PW</button></td></tr>`).join('');
+      const userRows=db.users.map(u=>`<tr><td>${esc(u.u)}</td><td>${esc(u.nama)}</td><td>${u.role}</td><td><button class="btn btn-sm btn-ghost edit-user" data-id="${u.id}">Edit</button> <button class="btn btn-sm btn-danger delete-user" data-id="${u.id}">Hapus</button> <button class="btn btn-sm btn-gold" data-id="${u.id}" id="resetPwdBtn">Reset PW</button></td></tr>`).join('');
       return `
       <div class="section-grid grid-2">
         <div class="card"><div class="card-head"><div><h3>Tambah / Edit Guru</h3><p>Data guru</p></div></div><div class="form-grid"><div class="field"><label>Nama</label><input id="guruNama" /></div><div class="field"><label>Mapel / Bidang</label><input id="guruMapel" /></div><div class="field"><label>Kontak</label><input id="guruKontak" /></div><div class="field"><label>Status</label><select id="guruStatus"><option value="Aktif">Aktif</option><option value="Nonaktif">Nonaktif</option></select></div><div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="saveGuruForm">Simpan Guru</button></div></div></div>
@@ -454,29 +451,43 @@
       <div class="card" style="margin-top:16px;"><div class="card-head"><div><h3>Daftar User</h3><p>Reset password / hak akses</p></div></div><div class="table-wrap"><table><thead><tr><th>Username</th><th>Nama</th><th>Role</th><th>Aksi</th></tr></thead><tbody>${userRows}</tbody></table></div></div>`;
     }
 
-    function saveGuruForm(){ const payload={ nama:$('#guruNama').value.trim(), mapel:$('#guruMapel').value.trim(), kontak:$('#guruKontak').value.trim(), status:$('#guruStatus').value || 'Aktif' }; if(!payload.nama){ toast('Nama guru wajib diisi',true); return; } const existing=db.guru.find(g=>g.nama===payload.nama); if(existing){ Object.assign(existing,payload); } else { db.guru.push({id:uid(),...payload}); } saveDb(); toast('Data guru disimpan'); renderView(); }
-    function saveUserForm(){ const payload={ u:$('#userU').value.trim().toLowerCase(), p:$('#userP').value.trim(), role:$('#userRole').value, nama:$('#userNama').value.trim(), ref:$('#userRef').value.trim()||null }; if(!payload.u || !payload.p || !payload.nama){ toast('Username, password, dan nama wajib diisi',true); return; } const existing=db.users.find(u=>u.u===payload.u); if(existing){ Object.assign(existing,payload); } else { db.users.push({id:uid(),...payload}); } saveDb(); toast('User disimpan'); renderView(); }
+    function saveGuruForm(){
+      const payload={ nama:$('#guruNama').value.trim(), mapel:$('#guruMapel').value.trim(), kontak:$('#guruKontak').value.trim(), status:$('#guruStatus').value || 'Aktif' };
+      if(!payload.nama){ toast('Nama guru wajib diisi',true); return; }
+      const targetId=state.editingGuruId || db.guru.find(g=>g.nama===payload.nama)?.id;
+      if(targetId){ const idx=db.guru.findIndex(g=>g.id===targetId); if(idx>=0){ db.guru[idx]={...db.guru[idx], ...payload}; } }
+      else { db.guru.push({id:uid(),...payload}); }
+      state.editingGuruId=null; saveDb(); toast('Data guru disimpan'); renderView();
+    }
+    function saveUserForm(){
+      const payload={ u:$('#userU').value.trim().toLowerCase(), p:$('#userP').value.trim(), role:$('#userRole').value, nama:$('#userNama').value.trim(), ref:$('#userRef').value.trim()||null };
+      if(!payload.u || !payload.p || !payload.nama){ toast('Username, password, dan nama wajib diisi',true); return; }
+      const targetId=state.editingUserId || db.users.find(u=>u.u===payload.u)?.id;
+      if(targetId){ const idx=db.users.findIndex(u=>u.id===targetId); if(idx>=0){ db.users[idx]={...db.users[idx], ...payload}; } }
+      else { db.users.push({id:uid(),...payload}); }
+      state.editingUserId=null; saveDb(); toast('User disimpan'); renderView();
+    }
     function deleteGuru(id){ if(confirm('Hapus guru ini?')){ db.guru=db.guru.filter(g=>g.id!==id); saveDb(); renderView(); } }
     function deleteUser(id){ if(confirm('Hapus user ini?')){ db.users=db.users.filter(u=>u.id!==id); saveDb(); renderView(); } }
-    function resetPasswordUser(){ const id=event?.target?.dataset?.id || event?.target.closest?.('#resetPwdBtn')?.dataset?.id; const u=db.users.find(x=>x.id===id); if(!u) return; u.p='123456'; saveDb(); toast(`Password ${u.u} direset ke 123456`); renderView(); }
-    function loadGuruForm(id){ const g=getGuru(id); if(!g) return; $('#guruNama').value=g.nama; $('#guruMapel').value=g.mapel; $('#guruKontak').value=g.kontak||''; $('#guruStatus').value=g.status||'Aktif'; }
-    function loadUserForm(id){ const u=getUser(id); if(!u) return; $('#userU').value=u.u; $('#userP').value=u.p; $('#userRole').value=u.role; $('#userNama').value=u.nama; $('#userRef').value=u.ref||''; }
+    function resetPasswordUser(event){ const target = event && event.target && event.target.closest ? event.target.closest('#resetPwdBtn') : null; const id = (target && target.dataset.id) || (event && event.currentTarget && event.currentTarget.dataset && event.currentTarget.dataset.id); const u=db.users.find(x=>x.id===id); if(!u) return; u.p='123456'; saveDb(); toast(`Password ${u.u} direset ke 123456`); renderView(); }
+    function loadGuruForm(id){ state.editingGuruId=id; const g=getGuru(id); if(!g) return; $('#guruNama').value=g.nama; $('#guruMapel').value=g.mapel; $('#guruKontak').value=g.kontak||''; $('#guruStatus').value=g.status||'Aktif'; }
+    function loadUserForm(id){ state.editingUserId=id; const u=getUser(id); if(!u) return; $('#userU').value=u.u; $('#userP').value=u.p; $('#userRole').value=u.role; $('#userNama').value=u.nama; $('#userRef').value=u.ref||''; }
 
     function renderKelas(){
       const rows=db.kelas.map(k=>`<tr><td>${esc(k.nama)}</td><td>${esc(k.waliKelas)}</td><td>${k.kapasitas}</td><td><button class="btn btn-sm btn-ghost edit-kelas" data-id="${k.id}">Edit</button> <button class="btn btn-sm btn-danger delete-kelas" data-id="${k.id}">Hapus</button></td></tr>`).join('');
       return `<div class="card"><div class="card-head"><div><h3>Manajemen Kelas</h3><p>Tambah / edit / hapus kelas</p></div></div><div class="form-grid"><div class="field"><label>Nama Kelas</label><input id="kelasNama" /></div><div class="field"><label>Wali Kelas</label><input id="kelasWali" /></div><div class="field"><label>Kapasitas</label><input id="kelasKapasitas" type="number" value="32" /></div><div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="saveKelasForm">Simpan</button></div></div><div class="table-wrap" style="margin-top:16px;"><table><thead><tr><th>Nama</th><th>Wali Kelas</th><th>Kapasitas</th><th>Aksi</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
     }
-    function saveKelasForm(){ const payload={ nama:$('#kelasNama').value.trim(), waliKelas:$('#kelasWali').value.trim(), kapasitas:Number($('#kelasKapasitas').value||32) }; if(!payload.nama){ toast('Nama kelas wajib diisi',true); return; } const existing=db.kelas.find(k=>k.nama===payload.nama); if(existing){ Object.assign(existing,payload); } else { db.kelas.push({id:uid(),...payload}); } saveDb(); toast('Kelas disimpan'); renderView(); }
+    function saveKelasForm(){ const payload={ nama:$('#kelasNama').value.trim(), waliKelas:$('#kelasWali').value.trim(), kapasitas:Number($('#kelasKapasitas').value||32) }; if(!payload.nama){ toast('Nama kelas wajib diisi',true); return; } const targetId=state.editingKelasId || db.kelas.find(k=>k.nama===payload.nama)?.id; if(targetId){ const idx=db.kelas.findIndex(k=>k.id===targetId); if(idx>=0){ db.kelas[idx]={...db.kelas[idx], ...payload}; } } else { db.kelas.push({id:uid(),...payload}); } state.editingKelasId=null; saveDb(); toast('Kelas disimpan'); renderView(); }
     function deleteKelas(id){ if(confirm('Hapus kelas ini?')){ db.kelas=db.kelas.filter(k=>k.id!==id); saveDb(); renderView(); } }
-    function loadKelasForm(id){ const k=db.kelas.find(x=>x.id===id); if(!k) return; $('#kelasNama').value=k.nama; $('#kelasWali').value=k.waliKelas; $('#kelasKapasitas').value=k.kapasitas; }
+    function loadKelasForm(id){ state.editingKelasId=id; const k=db.kelas.find(x=>x.id===id); if(!k) return; $('#kelasNama').value=k.nama; $('#kelasWali').value=k.waliKelas; $('#kelasKapasitas').value=k.kapasitas; }
 
     function renderMapel(){
       const rows=db.mapel.map(m=>`<tr><td>${esc(m.nama)}</td><td>${esc(m.kelompok)}</td><td><button class="btn btn-sm btn-ghost edit-mapel" data-id="${m.id}">Edit</button> <button class="btn btn-sm btn-danger delete-mapel" data-id="${m.id}">Hapus</button></td></tr>`).join('');
       return `<div class="card"><div class="card-head"><div><h3>Master Mata Pelajaran</h3><p>Tambah / edit / hapus mata pelajaran</p></div></div><div class="form-grid"><div class="field"><label>Nama Mapel</label><input id="mapelNama" /></div><div class="field"><label>Kelompok</label><select id="mapelKelompok"><option value="Akademik">Akademik</option><option value="Ekstrakurikuler">Ekstrakurikuler</option></select></div><div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="saveMapelForm">Simpan</button></div></div><div class="table-wrap" style="margin-top:16px;"><table><thead><tr><th>Nama</th><th>Kelompok</th><th>Aksi</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
     }
-    function saveMapelForm(){ const payload={ nama:$('#mapelNama').value.trim(), kelompok:$('#mapelKelompok').value }; if(!payload.nama){ toast('Nama mapel wajib diisi',true); return; } const existing=db.mapel.find(m=>m.nama===payload.nama); if(existing){ Object.assign(existing,payload); } else { db.mapel.push({id:uid(),...payload}); } saveDb(); toast('Mapel disimpan'); renderView(); }
+    function saveMapelForm(){ const payload={ nama:$('#mapelNama').value.trim(), kelompok:$('#mapelKelompok').value }; if(!payload.nama){ toast('Nama mapel wajib diisi',true); return; } const targetId=state.editingMapelId || db.mapel.find(m=>m.nama===payload.nama)?.id; if(targetId){ const idx=db.mapel.findIndex(m=>m.id===targetId); if(idx>=0){ db.mapel[idx]={...db.mapel[idx], ...payload}; } } else { db.mapel.push({id:uid(),...payload}); } state.editingMapelId=null; saveDb(); toast('Mapel disimpan'); renderView(); }
     function deleteMapel(id){ if(confirm('Hapus mapel ini?')){ db.mapel=db.mapel.filter(m=>m.id!==id); saveDb(); renderView(); } }
-    function loadMapelForm(id){ const m=db.mapel.find(x=>x.id===id); if(!m) return; $('#mapelNama').value=m.nama; $('#mapelKelompok').value=m.kelompok; }
+    function loadMapelForm(id){ state.editingMapelId=id; const m=db.mapel.find(x=>x.id===id); if(!m) return; $('#mapelNama').value=m.nama; $('#mapelKelompok').value=m.kelompok; }
 
     function renderJadwal(){
       const rows=db.jadwal.map(j=>`<tr><td>${esc(j.kelas)}</td><td>${esc(j.hari)}</td><td>${esc(j.jam || `${j.jamMulai}-${j.jamSelesai}`)}</td><td>${esc(getMapelName(j.mapelId || j.mapel))}</td><td>${esc(getGuru(j.guruId)?.nama || '-')}</td><td><button class="btn btn-sm btn-ghost edit-jadwal" data-id="${j.id}">Edit</button> <button class="btn btn-sm btn-danger delete-jadwal" data-id="${j.id}">Hapus</button></td></tr>`).join('');
@@ -484,23 +495,22 @@
     }
     function saveJadwalForm(){
       const rawJam=$('#jadwalJam').value.trim(); const [start,end]=rawJam.includes('-')?rawJam.split('-'):['07:00','07:35'];
-      const payload={ kelas:$('#jadwalKelas').value, hari:$('#jadwalHari').value, jam:rawJam || `${start}-${end}`, jamMulai:start, jamSelesai:end, mapelId:$('#jadwalMapel').value, mapel:getMapelName($('#jadwalMapel').value), guruId:$('#jadwalGuru').value };
+      const mapelId=$('#jadwalMapel').value;
+      const payload={ kelas:$('#jadwalKelas').value, hari:$('#jadwalHari').value, jam:rawJam || `${start}-${end}`, jamMulai:start, jamSelesai:end, mapelId, mapel:getMapelName(mapelId), guruId:$('#jadwalGuru').value };
       if(!payload.kelas || !payload.hari || !payload.jam){ toast('Semua field jadwal wajib diisi',true); return; }
-      const duplicate=db.jadwal.find(j=> j.kelas===payload.kelas && j.hari===payload.hari && j.jam===payload.jam && j.guruId===payload.guruId && j.mapelId===payload.mapelId);
-      if(duplicate){ toast('Jadwal tersebut sudah ada',true); return; }
-      const existing=db.jadwal.find(j=>j.id===payload.id);
-      if(existing){ Object.assign(existing,payload); }
+      const targetId=state.editingJadwalId || db.jadwal.find(j=> j.kelas===payload.kelas && j.hari===payload.hari && j.jam===payload.jam && j.guruId===payload.guruId && j.mapelId===payload.mapelId)?.id;
+      if(targetId){ const idx=db.jadwal.findIndex(j=>j.id===targetId); if(idx>=0){ db.jadwal[idx]={...db.jadwal[idx], ...payload}; } }
       else { db.jadwal.push({id:uid(),...payload}); }
-      saveDb(); toast('Jadwal disimpan'); renderView();
+      state.editingJadwalId=null; saveDb(); toast('Jadwal disimpan'); renderView();
     }
     function deleteJadwal(id){ if(confirm('Hapus jadwal ini?')){ db.jadwal=db.jadwal.filter(j=>j.id!==id); saveDb(); renderView(); } }
-    function loadJadwalForm(id){ const j=db.jadwal.find(x=>x.id===id); if(!j) return; $('#jadwalKelas').value=j.kelas; $('#jadwalHari').value=j.hari; $('#jadwalJam').value=j.jam || `${j.jamMulai}-${j.jamSelesai}`; $('#jadwalMapel').value=j.mapelId || j.mapel; $('#jadwalGuru').value=j.guruId; }
+    function loadJadwalForm(id){ state.editingJadwalId=id; const j=db.jadwal.find(x=>x.id===id); if(!j) return; $('#jadwalKelas').value=j.kelas; $('#jadwalHari').value=j.hari; $('#jadwalJam').value=j.jam || `${j.jamMulai}-${j.jamSelesai}`; $('#jadwalMapel').value=j.mapelId || j.mapel; $('#jadwalGuru').value=j.guruId; }
 
     function renderAbsensiSiswa(){
       const siswaList=currentUser.role==='wali' ? db.siswa.filter(s=>s.id===currentUser.ref) : db.siswa.filter(s=>s.kelas===state.absenKelas);
       const jamList=getJadwalForClass(state.absenKelas, state.absenTanggal);
       const rows=siswaList.map(s=>{
-        const rec=db.absensiSiswa.find(a=>a.tanggal===state.absenTanggal && a.siswaId===s.id) || {status:computeDailyStatus(s.id,state.absenTanggal),ket:''};
+        const rec=db.absensiSiswa.find(a=>a.tanggal===state.absenTanggal && a.siswaId===s.id) || {status:'Hadir',ket:''};
         const status=rec.status || 'Hadir';
         return `<tr><td>${esc(s.nama)}</td><td>${esc(s.nis)}</td><td>${esc(s.kelas)}</td><td><select data-sid="${s.id}" class="status-siswa"><option value="Hadir" ${status==='Hadir'?'selected':''}>Hadir</option><option value="Izin" ${status==='Izin'?'selected':''}>Izin</option><option value="Sakit" ${status==='Sakit'?'selected':''}>Sakit</option><option value="Alpa" ${status==='Alpa'?'selected':''}>Alpa</option><option value="Terlambat" ${status==='Terlambat'?'selected':''}>Terlambat</option></select></td><td><button class="btn btn-sm btn-ghost" data-sid="${s.id}" data-date="${state.absenTanggal}" data-status="${status}" data-action="save-status">Update</button></td></tr>`;
       }).join('');
@@ -559,9 +569,9 @@
       const rows=db.produk.map(p=>`<tr><td>${esc(p.nama)}</td><td>${esc(p.kode)}</td><td>${money(p.harga)}</td><td>${p.stok ?? 0}</td><td><button class="btn btn-sm btn-ghost edit-produk" data-id="${p.id}">Edit</button> <button class="btn btn-sm btn-danger delete-produk" data-id="${p.id}">Hapus</button></td></tr>`).join('');
       return `<div class="card"><div class="card-head"><div><h3>Produk Kantin</h3><p>Tambah / edit / hapus produk</p></div></div><div class="form-grid"><div class="field"><label>Nama Produk</label><input id="produkNama" /></div><div class="field"><label>Kode</label><input id="produkKode" /></div><div class="field"><label>Harga</label><input id="produkHarga" type="number" /></div><div class="field"><label>Stok</label><input id="produkStok" type="number" /></div><div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="saveProdukForm">Simpan</button></div></div><div class="table-wrap" style="margin-top:16px;"><table><thead><tr><th>Nama</th><th>Kode</th><th>Harga</th><th>Stok</th><th>Aksi</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
     }
-    function saveProdukForm(){ const payload={ nama:$('#produkNama').value.trim(), kode:$('#produkKode').value.trim(), harga:Number($('#produkHarga').value||0), stok:Number($('#produkStok').value||0) }; if(!payload.nama || !payload.kode){ toast('Nama produk dan kode wajib diisi',true); return; } const existing=db.produk.find(p=>p.kode===payload.kode); if(existing){ Object.assign(existing,payload); } else { db.produk.push({id:uid(),...payload}); } saveDb(); toast('Produk disimpan'); renderView(); }
+    function saveProdukForm(){ const payload={ nama:$('#produkNama').value.trim(), kode:$('#produkKode').value.trim(), harga:Number($('#produkHarga').value||0), stok:Number($('#produkStok').value||0) }; if(!payload.nama || !payload.kode){ toast('Nama produk dan kode wajib diisi',true); return; } const targetId=state.editingProdukId || db.produk.find(p=>p.kode===payload.kode)?.id; if(targetId){ const idx=db.produk.findIndex(p=>p.id===targetId); if(idx>=0){ db.produk[idx]={...db.produk[idx], ...payload}; } } else { db.produk.push({id:uid(),...payload}); } state.editingProdukId=null; saveDb(); toast('Produk disimpan'); renderView(); }
     function deleteProduk(id){ if(confirm('Hapus produk ini?')){ db.produk=db.produk.filter(p=>p.id!==id); saveDb(); renderView(); } }
-    function loadProdukForm(id){ const p=db.produk.find(x=>x.id===id); if(!p) return; $('#produkNama').value=p.nama; $('#produkKode').value=p.kode; $('#produkHarga').value=p.harga; $('#produkStok').value=p.stok ?? 0; }
+    function loadProdukForm(id){ state.editingProdukId=id; const p=db.produk.find(x=>x.id===id); if(!p) return; $('#produkNama').value=p.nama; $('#produkKode').value=p.kode; $('#produkHarga').value=p.harga; $('#produkStok').value=p.stok ?? 0; }
 
     function renderImport(){
       return `<div class="card"><div class="card-head"><div><h3>Impor Massal Siswa dari Excel / CSV</h3><p>Format kolom: nama,nis,kelas,ortu,kontak,alamat,ttl</p></div></div><div class="form-grid"><div class="field"><label>File CSV</label><input id="csvFile" type="file" accept=".csv,.xlsx,.xls" /></div><div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="importCsvBtn">Pilih File</button></div></div></div>`;
@@ -572,7 +582,7 @@
       const rows=db.years.map(y=>`<tr><td>${esc(y.nama)}</td><td>${esc(y.semester)}</td><td><span class="pill ${y.status==='Aktif'?'hadir':'izin'}">${esc(y.status)}</span></td><td><button class="btn btn-sm btn-ghost" data-id="${y.id}" data-role="set-active-year">Jadikan Aktif</button></td></tr>`).join('');
       return `<div class="card"><div class="card-head"><div><h3>Manajemen Tahun Ajaran & Semester</h3><p>Atur periode aktif</p></div></div><div class="form-grid"><div class="field"><label>Tahun Ajaran</label><input id="yearName" /></div><div class="field"><label>Semester</label><select id="yearSemester"><option value="Ganjil">Ganjil</option><option value="Genap">Genap</option></select></div><div class="field"><label>Status</label><select id="yearStatus"><option value="Aktif">Aktif</option><option value="Nonaktif">Nonaktif</option></select></div><div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="saveYearForm">Simpan</button></div></div><div class="table-wrap" style="margin-top:16px;"><table><thead><tr><th>Tahun Ajaran</th><th>Semester</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
     }
-    function saveYearForm(){ const payload={nama:$('#yearName').value.trim(), semester:$('#yearSemester').value, status:$('#yearStatus').value}; if(!payload.nama){ toast('Tahun ajaran wajib diisi',true); return; } const existing=db.years.find(y=>y.nama===payload.nama); if(existing){ Object.assign(existing,payload); } else { db.years.push({id:uid(),...payload}); } if(payload.status==='Aktif'){ db.years.forEach(y=>{ if(y.id!==(existing?existing.id:db.years[db.years.length-1].id)) y.status='Nonaktif'; }); } saveDb(); toast('Tahun ajaran disimpan'); renderView(); }
+    function saveYearForm(){ const payload={nama:$('#yearName').value.trim(), semester:$('#yearSemester').value, status:$('#yearStatus').value}; if(!payload.nama){ toast('Tahun ajaran wajib diisi',true); return; } const existing=db.years.find(y=>y.nama===payload.nama); if(existing){ Object.assign(existing,payload); } else { db.years.push({id:uid(),...payload}); } if(payload.status==='Aktif'){ db.years.forEach(y=>{ if(y.nama !== payload.nama) y.status='Nonaktif'; }); } saveDb(); toast('Tahun ajaran disimpan'); renderView(); }
 
     function renderNotifikasi(){
       const rows=db.notifications.map(n=>`<tr><td>${esc(n.judul)}</td><td>${esc(n.pesan)}</td><td><span class="pill ${n.jenis==='danger'?'alpa':n.jenis==='warning'?'late':'izin'}">${esc(n.jenis)}</span></td><td>${fmtDate(n.tanggal)}</td><td><button class="btn btn-sm btn-ghost clear-notif" data-id="${n.id}">Hapus</button></td></tr>`).join('');
@@ -606,7 +616,7 @@
       if(e.target && e.target.id==='saveJadwalForm'){ saveJadwalForm(); }
       if(e.target && e.target.id==='saveProdukForm'){ saveProdukForm(); }
       if(e.target && e.target.id==='importCsvBtn'){ $('#csvFile').click(); }
-      if(e.target && e.target.id==='resetPwdBtn'){ resetPasswordUser(); }
+      if(e.target && e.target.id==='resetPwdBtn'){ resetPasswordUser(e); }
       if(e.target && e.target.dataset && e.target.dataset.action === 'save-status'){ const sid=e.target.dataset.sid; const date=e.target.dataset.date; const status = document.querySelector(`select[data-sid="${sid}"]`)?.value || 'Hadir'; const rec=db.absensiSiswa.find(a=>a.tanggal===date && a.siswaId===sid) || {id:uid(),tanggal:date,siswaId:sid}; rec.status=status; rec.ket=''; if(!db.absensiSiswa.some(a=>a.tanggal===date && a.siswaId===sid)){ db.absensiSiswa.push(rec); } else { Object.assign(db.absensiSiswa.find(a=>a.tanggal===date && a.siswaId===sid), rec); } saveDb(); renderView(); }
     });
 
@@ -637,7 +647,7 @@
       const d7=e.target.closest('.delete-produk'); if(d7 && confirm('Hapus produk ini?')){ db.produk=db.produk.filter(p=>p.id!==d7.dataset.id); saveDb(); renderView(); }
       const n=e.target.closest('.send-notif'); if(n){ triggerNotification(n.dataset.type, n.dataset.msg, n.dataset.target); }
       const c=e.target.closest('.clear-notif'); if(c){ db.notifications=db.notifications.filter(nf=>nf.id!==c.dataset.id); saveDb(); renderView(); }
-      const r=e.target.closest('#resetPwdBtn'); if(r){ const uid=r.dataset.id; const u=db.users.find(x=>x.id===uid); if(u){ u.p='123456'; saveDb(); toast(`Password ${u.u} direset ke 123456`); renderView(); } }
+      const r=e.target.closest('#resetPwdBtn'); if(r){ resetPasswordUser({target:r,currentTarget:r}); }
     });
 
     init();
